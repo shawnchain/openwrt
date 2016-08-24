@@ -1,0 +1,40 @@
+--- a/package/ramips/drivers/mt7620/files/mt7620.sh
++++ b/package/ramips/drivers/mt7620/files/mt7620.sh
+@@ -22,7 +22,7 @@ enable_mt7620() {
+ 
+ detect_mt7620() {
+ #	detect_ralink_wifi mt7620 mt7620
+-	ssid=mt7620-`ifconfig eth0 | grep HWaddr | cut -c 51- | sed 's/://g'`
++	ssid=MyWrt-`ifconfig eth0 | grep HWaddr | cut -c 51- | sed 's/://g'`
+ 	cd /sys/module/
+ 	[ -d $module ] || return
+ 	[ -e /etc/config/wireless ] && return
+@@ -32,7 +32,8 @@ config wifi-device      mt7620
+         option vendor   ralink
+         option band     2.4G
+         option channel  0
+-    	option auotch   2
++    	option autoch   2
++    	option disabled 1
+ 
+ config wifi-iface
+         option device   mt7620
+--- a/package/ramips/drivers/mt76x2e/files/mt7612e.sh
++++ b/package/ramips/drivers/mt76x2e/files/mt7612e.sh
+@@ -21,7 +21,7 @@ enable_mt7612e() {
+ 
+ detect_mt7612e() {
+ #	detect_ralink_wifi mt7612e mt76x2e
+-	ssid=mt7612e-`ifconfig eth0 | grep HWaddr | cut -c 51- | sed 's/://g'`
++	ssid=MyWrt5G-`ifconfig eth0 | grep HWaddr | cut -c 51- | sed 's/://g'`
+ 	cd /sys/module/
+ 	[ -d $module ] || return
+ 	[ -e /etc/config/wireless ] && return
+@@ -32,6 +32,7 @@ config wifi-device      mt7612e
+         option band     5G
+         option channel  0
+         option autoch   2
++        option disabled 1
+ 
+ config wifi-iface
+         option device   mt7612e
