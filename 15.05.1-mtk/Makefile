@@ -32,7 +32,7 @@ mtk: .prepare_config
 .checkout_src: .check_hostdeps
 	[ -d $(openwrt_dir) ] ||  git clone https://github.com/changeway/openwrt_CC_for_MiWifi_Mini $(openwrt_dir);
 	@cd $(openwrt_dir); git checkout f81896fc596cf387ec966be975293a1c6be88685; 
-	@[ ! -s $(openwrt_dir)/dl -a -d /opt/openwrt/dl ] && ln -sf /opt/openwrt/dl $(openwrt_dir)/dl || :
+	@[ ! -L $(openwrt_dir)/dl -a -d /opt/openwrt/dl ] && ln -sf /opt/openwrt/dl $(openwrt_dir)/dl || :
 	@touch .checkout_src
 
 .check_hostdeps:
