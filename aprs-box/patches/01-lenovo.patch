@@ -14,7 +14,7 @@ Index: aprs-box/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ram
 + NAME:=Lenovo Y1
 + PACKAGES:=\
 +	kmod-usb-core kmod-usb2 kmod-usb-ohci \
-+	kmod-ledtrig-usbdev
++	kmod-ledtrig-usbdev kmod-mt7620 kmod-mt76x2e
 +endef
 +
 +define Profile/Y1/Description
@@ -37,7 +37,7 @@ Index: aprs-box/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ram
 + NAME:=Lenovo Y1S
 + PACKAGES:=\
 +	kmod-usb-core kmod-usb2 kmod-usb-ohci \
-+	kmod-ledtrig-usbdev
++	kmod-ledtrig-usbdev kmod-mt7620 kmod-mt76x2e
 +endef
 +
 +define Profile/Y1S/Description

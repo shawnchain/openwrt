@@ -7,9 +7,10 @@ OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-textsearch kmod-lib-zlib \
 	kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 \
 	kmod-usb-serial kmod-usb-serial-ch341 kmod-usb-serial-cp210x kmod-usb-serial-ftdi kmod-usb-serial-pl2303 \
 	librt libubus-lua libuci-lua lua \
-	luci luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn luci-lib-json \
+	luci luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
-	screen terminfo uclibcxx uhttpd uhttpd-mod-ubus zlib 
+	screen terminfo uclibcxx uhttpd uhttpd-mod-ubus zlib openssl-util \
+	-dnsmasq dnsmasq-full 
 
 OPKG_PACKAGES_EXTRA :=
 
@@ -32,7 +33,7 @@ mt7620: $(PREPARED_TARGETS)
 	$(call BeforeBuildImage)
 	make -C $(BUILDER) image PROFILE=Default \
 		FILES="$(shell cd $(BUILDER); pwd)/target/linux/ramips/base-files" \
-		PACKAGES="$(OPKG_PACKAGES) $(OPKG_PACKAGES_EXTRA)"
+		PACKAGES="$(OPKG_PACKAGES) $(OPKG_PACKAGES_EXTRA) kmod-mt7620 kmod-mt76x2e"
 
 .patched:
 	@cd $(BUILDER); cat ../patches/*.patch | patch -p2
