@@ -76,13 +76,9 @@ extract:
 
 help:
 	@echo "Usage:"
-	@echo "  make BUILDER=.... [RALINK=1] [FEEDS=1]     build OpenWrt firmware for this board"
+	@echo "  make mt7620     build OpenWrt firmware with APRS software installed for MT7620 board"
 	@echo "Options:"
-	@echo "  BUILDER=<directory>        specify a valid ImageBuilder directory"
-	@echo "  SDK=<directory>            specify a valid OpenWrt SDK directory"
-	@echo "  RALINK=1                   build and install Ralink 5G drivers"
-	@echo "  FEEDS=1                    build and install Shadowsocks, minivtun, kmod-proto-bridge, kmod-yavlan"
-	@echo "  FULL=1                     enable both the options above"
+	@echo "  none"
 
 clean: .check_ib
 	make clean -C $(BUILDER)
