@@ -9,8 +9,7 @@ OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-textsearch kmod-lib-zlib \
 	librt libubus-lua libuci-lua lua \
 	luci luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
-	screen terminfo uclibcxx uhttpd uhttpd-mod-ubus zlib openssl-util \
-	-dnsmasq dnsmasq-full 
+	screen terminfo uclibcxx uhttpd uhttpd-mod-ubus zlib openssl-util
 
 OPKG_PACKAGES_EXTRA :=
 
