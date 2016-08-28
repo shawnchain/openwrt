@@ -1,0 +1,46 @@
+Index: aprs-box/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ramips/mt7620/profiles/y1.mk
+===================================================================
+--- /dev/null
++++ aprs-box/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ramips/mt7620/profiles/y1.mk
+@@ -0,0 +1,18 @@
++#
++# Copyright (C) 2015 OpenWrt.org
++#
++# This is free software, licensed under the GNU General Public License v2.
++# See /LICENSE for more information.
++#
++
++define Profile/Y1
++ NAME:=Lenovo Y1
++ PACKAGES:=\
++	kmod-usb-core kmod-usb2 kmod-usb-ohci \
++	kmod-ledtrig-usbdev
++endef
++
++define Profile/Y1/Description
++ Support for Lenovo Y1 routers
++endef
++$(eval $(call Profile,Y1))
+Index: aprs-box/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ramips/mt7620/profiles/y1s.mk
+===================================================================
+--- /dev/null
++++ aprs-box/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ramips/mt7620/profiles/y1s.mk
+@@ -0,0 +1,18 @@
++#
++# Copyright (C) 2015 OpenWrt.org
++#
++# This is free software, licensed under the GNU General Public License v2.
++# See /LICENSE for more information.
++#
++
++define Profile/Y1S
++ NAME:=Lenovo Y1S
++ PACKAGES:=\
++	kmod-usb-core kmod-usb2 kmod-usb-ohci \
++	kmod-ledtrig-usbdev
++endef
++
++define Profile/Y1S/Description
++ Support for Lenovo Y1S routers
++endef
++$(eval $(call Profile,Y1S))

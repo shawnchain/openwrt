@@ -1,0 +1,13 @@
+Index: aprs-box/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ramips/dts/Y1.dtsi
+===================================================================
+--- aprs-box.orig/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ramips/dts/Y1.dtsi
++++ aprs-box/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ramips/dts/Y1.dtsi
+@@ -2,7 +2,7 @@
+ 
+ / {
+ 	chosen {
+-		bootargs = "console=ttyS0,115200";
++		bootargs = "console=/dev/null";
+ 	};
+ 	
+ 	palmbus@10000000 {

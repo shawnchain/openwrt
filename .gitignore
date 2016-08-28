@@ -31,3 +31,8 @@
 # Debug files
 *.dSYM/
 *.su
+.pc
+.patched
+.aprx
+.check_ib
+.check_sdk
