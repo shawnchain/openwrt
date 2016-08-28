@@ -1,7 +1,6 @@
-
 BUILDER ?= OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64
-BUILDER_TGZ ?= mywrt-imagebuilder-15.05.1-mt7620.tar.bz2
 SDK ?= OpenWrt-SDK-ramips-mt7620_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64
+BUILDER_TGZ ?= mywrt-imagebuilder-15.05.1-mt7620.tar.bz2
 SDK_TGZ ?= mywrt-sdk-15.05.1-mt7620.tar.bz2
 
 OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-textsearch kmod-lib-zlib \
@@ -29,7 +28,7 @@ define BeforeBuildImage
 	[ -d files ] && cp -fr files/* $(BUILDER)/target/linux/ramips/base-files
 endef
 
-APRS: $(PREPARED_TARGETS)
+mt7620: $(PREPARED_TARGETS)
 	$(call BeforeBuildImage)
 	make -C $(BUILDER) image PROFILE=Default \
 		FILES="$(shell cd $(BUILDER); pwd)/target/linux/ramips/base-files" \
@@ -37,7 +36,7 @@ APRS: $(PREPARED_TARGETS)
 
 .patched:
 	@cd $(BUILDER); cat ../patches/*.patch | patch -p2
-	mv .patching .patched
+	touch .patched
 
 .aprx:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
@@ -88,7 +87,7 @@ help:
 clean: .check_ib
 	make clean -C $(BUILDER)
 	@if [ -e .patched ]; then \
-		@cd $(BUILDER); cat ../patches/*.patch | patch -R -p2; cd ..; \
+		cd $(BUILDER); cat ../patches/*.patch | patch -R -p2; cd ..; \
 		rm -vf .patched; \
 	fi
 	[ -n "$(SDK)" -a -d "$(SDK)"/bin/ramips ] && rm -rf "$(SDK)"/bin/ramips/* || :
