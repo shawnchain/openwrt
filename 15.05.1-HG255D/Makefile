@@ -10,7 +10,7 @@ mtk: .prepare_config
 
 .prepare_config: .install_feeds
 	@cd $(openwrt_dir); [ -f .config ] && mv -vf .config .config.bak || :
-	@cp -vf config/mywrt-full.config $(openwrt_dir)/.config
+	@cp -vf config/$(config_file) $(openwrt_dir)/.config
 	[ -f config/config.extra ] && config/config.extra >> $(openwrt_dir)/.config || :
 
 .install_feeds: .update_feeds

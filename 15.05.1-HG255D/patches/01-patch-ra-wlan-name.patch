@@ -1,0 +1,13 @@
+Index: openwrt-src/package/kernel/mac80211/files/lib/wifi/mac80211.sh
+===================================================================
+--- openwrt-src.orig/package/kernel/mac80211/files/lib/wifi/mac80211.sh	2016-09-12 16:22:00.337973690 +0800
++++ openwrt-src/package/kernel/mac80211/files/lib/wifi/mac80211.sh	2016-09-12 16:53:47.205922403 +0800
+@@ -121,7 +121,7 @@
+ 	option device   radio$devidx
+ 	option network  lan
+ 	option mode     ap
+-	option ssid     OpenWrt
++	option ssid     MyWrt
+ 	option encryption none
+ 
+ EOF
