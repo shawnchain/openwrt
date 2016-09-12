@@ -1,20 +1,24 @@
 Index: openwrt-src/target/linux/ramips/base-files/lib/ramips.sh
 ===================================================================
---- openwrt-src.orig/target/linux/ramips/base-files/lib/ramips.sh	2016-09-12 16:22:00.805973678 +0800
-+++ openwrt-src/target/linux/ramips/base-files/lib/ramips.sh	2016-09-12 16:59:05.665913838 +0800
-@@ -386,6 +386,8 @@
- 		name="xdxrn502j"
+--- openwrt-src.orig/target/linux/ramips/base-files/lib/ramips.sh	2016-09-12 17:03:56.549906014 +0800
++++ openwrt-src/target/linux/ramips/base-files/lib/ramips.sh	2016-09-12 23:47:10.593255293 +0800
+@@ -387,6 +387,12 @@
  		;;
  	*"HG255D")
-+	*"Huawei HG255D")
-+	*"HuaWei HG255D")
  		name="hg255d"
++                ;;
++	*"Huawei HG255D")
++		name="hg255d"
++                ;;
++	*"HuaWei HG255D")
++		name="hg255d"
  		;;
  	*"V22SG")
+ 		name="v22sg"
 Index: openwrt-src/target/linux/ramips/base-files/etc/diag.sh
 ===================================================================
---- openwrt-src.orig/target/linux/ramips/base-files/etc/diag.sh	2016-09-12 16:22:00.805973678 +0800
-+++ openwrt-src/target/linux/ramips/base-files/etc/diag.sh	2016-09-12 17:00:31.493911530 +0800
+--- openwrt-src.orig/target/linux/ramips/base-files/etc/diag.sh	2016-09-12 17:03:56.549906014 +0800
++++ openwrt-src/target/linux/ramips/base-files/etc/diag.sh	2016-09-12 17:03:56.549906014 +0800
 @@ -81,6 +81,9 @@
  	hlk-rm04)
  		status_led="hlk-rm04:red:power"
