@@ -14,58 +14,41 @@ OPKG_PACKAGES_EXTRA := kmod-lib-textsearch
 PREPARED_TARGETS = .check_ib .patched
 
 # for aprs/aprx
-OPKG_APRS_PACKAGES := kmod-usb-serial-ch341 kmod-usb-serial-cp210x kmod-usb-serial-ftdi kmod-usb-serial-pl2303 \
+OPKG_APRS_PACKAGES := kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi \
 	screen terminfo
 OPKG_APRS_PACKAGES += libpthread aprx 
 PREPARED_TARGETS += .check_sdk .aprx 
 
-define BeforeBuildImage_mt7620
-	mkdir -p $(BUILDER)/dl
-	cp -f files/mt7620/repo-base.conf $(BUILDER)/repositories.conf
-	@[ -n "$(SDK)" -a -f "$(SDK)"/bin/ramips/packages/Packages ] && \
-		echo "src aprs file:$(shell cd $(SDK)/bin/ramips/packages; pwd)" >> $(BUILDER)/repositories.conf || :	
-	mkdir -p $(BUILDER)/target/linux/ramips/base-files/etc
-	cp -f files/mt7620/opkg.conf $(BUILDER)/target/linux/ramips/base-files/etc/opkg.conf
-	[ -d files ] && cp -fr files/common/* $(BUILDER)/target/linux/ramips/base-files
+define UpdatePackageIndex
+	[ -d $(SDK)/bin/$1/packages ] && cd "$(SDK)/bin/$1/packages" && ../../../scripts/ipkg-make-index.sh . > Packages && gzip -9c Packages > Packages.gz
 endef
 
-define CopyFiles_brcm47xx
+# $(1): chip arch type
+# $(2): image profile name
+# $(3): special package names to include
+define BuildImage
+	$(call UpdatePackageIndex,$(1))
 	mkdir -p $(BUILDER)/dl
-	cp -f files/brcm47xx/repo-base.conf $(BUILDER)/repositories.conf
-	@[ -n "$(SDK)" -a -f "$(SDK)"/bin/brcm47xx/packages/Packages ] && \
-		echo "src aprs file:$(shell cd $(SDK)/bin/brcm47xx/packages; pwd)" >> $(BUILDER)/repositories.conf || :	
-	mkdir -p $(BUILDER)/target/linux/brcm47xx/base-files/etc
-	cp -f files/brcm47xx/opkg.conf $(BUILDER)/target/linux/brcm47xx/base-files/etc/opkg.conf
-	[ -d files ] && cp -fr files/common/* $(BUILDER)/target/linux/brcm47xx/base-files
-endef
-
-define CopyFiles_rt305x
-	mkdir -p $(BUILDER)/dl
-	cp -f files/rt305x/repo-base.conf $(BUILDER)/repositories.conf
-	@[ -n "$(SDK)" -a -f "$(SDK)"/bin/ramips/packages/Packages ] && \
-		echo "src aprs file:$(shell cd $(SDK)/bin/ramips/packages; pwd)" >> $(BUILDER)/repositories.conf || :	
-	mkdir -p $(BUILDER)/target/linux/ramips/base-files/etc
-	cp -f files/rt305x/opkg.conf $(BUILDER)/target/linux/ramips/base-files/etc/opkg.conf
-	[ -d files ] && cp -fr files/common/* $(BUILDER)/target/linux/ramips/base-files
+	cp -f files/$(1)/repo-base.conf $(BUILDER)/repositories.conf
+	@[ -n "$(SDK)" -a -f "$(SDK)"/bin/$(1)/packages/Packages ] && \
+		echo "src aprs file:$(shell cd $(SDK)/bin/$(1)/packages; pwd)" >> $(BUILDER)/repositories.conf || :	
+	mkdir -p $(BUILDER)/target/linux/$(1)/base-files/etc
+	cp -f files/$(1)/opkg.conf $(BUILDER)/target/linux/$(1)/base-files/etc/opkg.conf
+	[ -d files/common ] && cp -fr files/common/* $(BUILDER)/target/linux/$(1)/base-files
+	[ -d files/$(1) ] && cp -fr files/$(1)/* $(BUILDER)/target/linux/$(1)/base-files
+	make -C $(BUILDER) image PROFILE=$(2) \
+		FILES="$(shell cd $(BUILDER); pwd)/target/linux/$1/base-files" \
+		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) $(3)"
 endef
 
 brcm47xx: $(PREPARED_TARGETS)
-	$(call CopyFiles_brcm47xx)
-	make -C $(BUILDER) image PROFILE=Default \
-		FILES="$(shell cd $(BUILDER); pwd)/target/linux/brcm47xx/base-files" \
-		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) kmod-b43legacy"
+	$(call BuildImage,brcm47xx,Broadcom-b43,kmod-b43legacy)
 
 rt305x:$(PREPARED_TARGETS)
-	$(call CopyFiles_rt305x)
-	make -C $(BUILDER) image PROFILE=Default \
-		FILES="$(shell cd $(BUILDER); pwd)/target/linux/ramips/base-files" \
-		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) kmod-rt2800-soc"
+	$(call BuildImage,rt305x,Default,kmod-rt2800-soc)
 
 mt7620: $(PREPARED_TARGETS)
-	$(call BeforeBuildImage_mt7620)
-	make -C $(BUILDER) image PROFILE=Default \
-		FILES="$(shell cd $(BUILDER); pwd)/target/linux/ramips/base-files" \
-		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) kmod-mt7620 kmod-mt76x2e"
+	$(call BuildImage,mt7620,Default,"kmod-mt7620 kmod-mt76x2e")
 
 .patched:
 	@cd $(BUILDER); cat ../patches/*.patch | patch -p2
@@ -75,7 +58,6 @@ mt7620: $(PREPARED_TARGETS)
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
 	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
 	make package/aprx/compile V=s -C "$(SDK)"
-	cd "$(SDK)/bin/ramips/packages" && ../../../scripts/ipkg-make-index.sh . > Packages && gzip -9c Packages > Packages.gz
 
 .gfw:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
@@ -87,7 +69,6 @@ mt7620: $(PREPARED_TARGETS)
 	make package/file-storage/compile V=s -C "$(SDK)"
 	make package/dnspod-utils/compile V=s -C "$(SDK)"
 	make package/proto-bridge/compile V=s -C "$(SDK)"
-	cd "$(SDK)/bin/ramips/packages" && ../../../scripts/ipkg-make-index.sh . > Packages && gzip -9c Packages > Packages.gz
 
 .check_ib:
 	@if ! [ -n "$(BUILDER)" -a -d "$(BUILDER)" ]; then \
