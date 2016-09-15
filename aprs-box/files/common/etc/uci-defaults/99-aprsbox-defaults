@@ -9,4 +9,11 @@ uci set system.@system[0].hostname='MyAprsBox'
 uci set system.@system[0].zonename='Asia/Shanghai'
 uci set system.@system[0].timezone='CST-8'
 uci commit system
+
+# disable dhcp-v6
+uci delete dhcp.lan.dhcpv6
+uci delete dhcp.lan.ra_management
+uci delete dhcp.lan.ra
+uci commit dhcp.lan
+
 exit 0
