@@ -3,36 +3,69 @@ SDK ?= OpenWrt-SDK-ramips-mt7620_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64
 BUILDER_TGZ ?= mywrt-imagebuilder-15.05.1-mt7620.tar.bz2
 SDK_TGZ ?= mywrt-sdk-15.05.1-mt7620.tar.bz2
 
-OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-textsearch kmod-lib-zlib \
+OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 \
-	kmod-usb-serial kmod-usb-serial-ch341 kmod-usb-serial-cp210x kmod-usb-serial-ftdi kmod-usb-serial-pl2303 \
+	kmod-usb-serial \
 	librt libubus-lua libuci-lua lua \
-	luci luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn \
+	luci luci-base luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
-	screen terminfo uclibcxx uhttpd uhttpd-mod-ubus zlib openssl-util
-
-OPKG_PACKAGES_EXTRA :=
-
+	uclibcxx rpcd uhttpd uhttpd-mod-ubus zlib openssl-util
+OPKG_PACKAGES_EXTRA := kmod-lib-textsearch
 PREPARED_TARGETS = .check_ib .patched
 
-OPKG_PACKAGES += libpthread aprx 
+# for aprs/aprx
+OPKG_APRS_PACKAGES := kmod-usb-serial-ch341 kmod-usb-serial-cp210x kmod-usb-serial-ftdi kmod-usb-serial-pl2303 \
+	screen terminfo
+OPKG_APRS_PACKAGES += libpthread aprx 
 PREPARED_TARGETS += .check_sdk .aprx 
 
-define BeforeBuildImage
+define BeforeBuildImage_mt7620
 	mkdir -p $(BUILDER)/dl
-	cp -f repo-base.conf $(BUILDER)/repositories.conf
+	cp -f files/mt7620/repo-base.conf $(BUILDER)/repositories.conf
 	@[ -n "$(SDK)" -a -f "$(SDK)"/bin/ramips/packages/Packages ] && \
 		echo "src aprs file:$(shell cd $(SDK)/bin/ramips/packages; pwd)" >> $(BUILDER)/repositories.conf || :	
 	mkdir -p $(BUILDER)/target/linux/ramips/base-files/etc
-	cp -f opkg.conf $(BUILDER)/target/linux/ramips/base-files/etc/opkg.conf
-	[ -d files ] && cp -fr files/* $(BUILDER)/target/linux/ramips/base-files
+	cp -f files/mt7620/opkg.conf $(BUILDER)/target/linux/ramips/base-files/etc/opkg.conf
+	[ -d files ] && cp -fr files/common/* $(BUILDER)/target/linux/ramips/base-files
 endef
 
-mt7620: $(PREPARED_TARGETS)
-	$(call BeforeBuildImage)
+define CopyFiles_brcm47xx
+	mkdir -p $(BUILDER)/dl
+	cp -f files/brcm47xx/repo-base.conf $(BUILDER)/repositories.conf
+	@[ -n "$(SDK)" -a -f "$(SDK)"/bin/brcm47xx/packages/Packages ] && \
+		echo "src aprs file:$(shell cd $(SDK)/bin/brcm47xx/packages; pwd)" >> $(BUILDER)/repositories.conf || :	
+	mkdir -p $(BUILDER)/target/linux/brcm47xx/base-files/etc
+	cp -f files/brcm47xx/opkg.conf $(BUILDER)/target/linux/brcm47xx/base-files/etc/opkg.conf
+	[ -d files ] && cp -fr files/common/* $(BUILDER)/target/linux/brcm47xx/base-files
+endef
+
+define CopyFiles_rt305x
+	mkdir -p $(BUILDER)/dl
+	cp -f files/rt305x/repo-base.conf $(BUILDER)/repositories.conf
+	@[ -n "$(SDK)" -a -f "$(SDK)"/bin/ramips/packages/Packages ] && \
+		echo "src aprs file:$(shell cd $(SDK)/bin/ramips/packages; pwd)" >> $(BUILDER)/repositories.conf || :	
+	mkdir -p $(BUILDER)/target/linux/ramips/base-files/etc
+	cp -f files/rt305x/opkg.conf $(BUILDER)/target/linux/ramips/base-files/etc/opkg.conf
+	[ -d files ] && cp -fr files/common/* $(BUILDER)/target/linux/ramips/base-files
+endef
+
+brcm47xx: $(PREPARED_TARGETS)
+	$(call CopyFiles_brcm47xx)
+	make -C $(BUILDER) image PROFILE=Default \
+		FILES="$(shell cd $(BUILDER); pwd)/target/linux/brcm47xx/base-files" \
+		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) kmod-b43legacy"
+
+rt305x:$(PREPARED_TARGETS)
+	$(call CopyFiles_rt305x)
 	make -C $(BUILDER) image PROFILE=Default \
 		FILES="$(shell cd $(BUILDER); pwd)/target/linux/ramips/base-files" \
-		PACKAGES="$(OPKG_PACKAGES) $(OPKG_PACKAGES_EXTRA) kmod-mt7620 kmod-mt76x2e"
+		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) kmod-rt2800-soc"
+
+mt7620: $(PREPARED_TARGETS)
+	$(call BeforeBuildImage_mt7620)
+	make -C $(BUILDER) image PROFILE=Default \
+		FILES="$(shell cd $(BUILDER); pwd)/target/linux/ramips/base-files" \
+		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) kmod-mt7620 kmod-mt76x2e"
 
 .patched:
 	@cd $(BUILDER); cat ../patches/*.patch | patch -p2
@@ -76,7 +109,10 @@ extract:
 
 help:
 	@echo "Usage:"
-	@echo "  make mt7620     build OpenWrt firmware with APRS software installed for MT7620 board"
+	@echo "  make mt7620		build OpenWrt firmware with APRS software installed for Lenovo Y1/Y1S (MT7620 board)"
+	@echo "  make rt305x		build OpenWrt firmware with APRS software installed for Huawei RG255D(RT305x board)"
+	@echo "  make brcm47xx		build OpenWrt firmware with APRS software installed for H618B(BRCM47XX board)"
+	
 	@echo "Options:"
 	@echo "  none"
 
@@ -87,3 +123,4 @@ clean: .check_ib
 		rm -vf .patched; \
 	fi
 	[ -n "$(SDK)" -a -d "$(SDK)"/bin/ramips ] && rm -rf "$(SDK)"/bin/ramips/* || :
+	[ -n "$(SDK)" -a -d "$(SDK)"/bin/brcm47xx ] && rm -rf "$(SDK)"/bin/brcm47xx/* || :
