@@ -5,7 +5,7 @@ host_packages = build-essential git flex gettext libncurses5-dev unzip gawk libl
 openwrt_feeds = luci luci-app-ddns
 config_file = hg255d-mywrt-full.config
 
-mtk: .prepare_config
+image: .prepare_config
 	@make -C $(openwrt_dir)
 
 .prepare_config: .install_feeds
@@ -26,8 +26,16 @@ mtk: .prepare_config
 	@touch .update_feeds
 
 .patched: .checkout_src
-	@cd $(openwrt_dir); cat ../patches/*.patch | patch -p1
+	@cd $(openwrt_dir) && cat ../patches/*.patch | patch -p2
+	@cd $(openwrt_dir) && cat ../patches/hg255d/*.patch | patch -p2
 	@touch .patched
+
+patch: .patched
+
+unpatch:
+	[ -f .patched ] && cd $(openwrt_dir) && cat ../patches/*.patch | patch -p2 -R 
+	[ -f .patched ] && cd $(openwrt_dir) && cat ../patches/hg255d/*.patch | patch -p2 -R 
+	rm -f .patched
 
 # 2. Checkout source code:
 .checkout_src: .check_hostdeps
@@ -55,9 +63,9 @@ menuconfig: .prepare_config
 	@make -C $(openwrt_dir) menuconfig
 	@[ $(openwrt_dir)/.config -nt config/$(config_file) ] && cp -vf $(openwrt_dir)/.config config/$(config_file) || :
 
-clean:
+clean: 
 	make clean -C $(openwrt_dir) V=s
 
-distclean: clean
-	rm .check_hostdeps .checkout_src .patched .update_feeds .install_feeds
-	rm -fr $(openwrt_dir)
+distclean: clean unpatch
+	make distclean -C $(openwrt_dir) V=s
+	rm -f .check_hostdeps .checkout_src .patched .update_feeds .install_feeds

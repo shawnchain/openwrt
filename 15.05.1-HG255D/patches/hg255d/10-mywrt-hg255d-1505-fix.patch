@@ -1,0 +1,47 @@
+--- a/openwrt-src/target/linux/ramips/base-files/lib/ramips.sh	2016-09-12 17:03:56.549906014 +0800
++++ b/openwrt-src/target/linux/ramips/base-files/lib/ramips.sh	2016-09-12 23:47:10.593255293 +0800
+@@ -387,6 +387,12 @@
+ 		;;
+ 	*"HG255D")
+ 		name="hg255d"
++                ;;
++	*"Huawei HG255D")
++		name="hg255d"
++                ;;
++	*"HuaWei HG255D")
++		name="hg255d"
+ 		;;
+ 	*"V22SG")
+ 		name="v22sg"
+--- a/openwrt-src/target/linux/ramips/base-files/etc/diag.sh	2016-09-12 17:03:56.549906014 +0800
++++ b/openwrt-src/target/linux/ramips/base-files/etc/diag.sh	2016-09-12 17:03:56.549906014 +0800
+@@ -81,6 +81,9 @@
+ 	hlk-rm04)
+ 		status_led="hlk-rm04:red:power"
+ 		;;
++	hg255d)
++		status_led="hg255d:power"
++		;;
+ 	ht-tm02)
+ 		status_led="ht-tm02:blue:wlan"
+ 		;;
+--- a/openwrt-src/target/linux/ramips/image/Makefile	2016-09-12 17:01:12.577910425 +0800
++++ b/openwrt-src/target/linux/ramips/image/Makefile	2016-09-12 17:03:49.637906200 +0800
+@@ -535,7 +535,7 @@
+ 
+ Image/Build/Profile/RT-N13U=$(call BuildFirmware/Default8M/$(1),$(1),rt-n13u,RT-N13U)
+ 
+-#Image/Build/Profile/HG255D=$(call BuildFirmware/Default16M/$(1),$(1),hg255d,HG255D)
++Image/Build/Profile/HG255D=$(call BuildFirmware/Default16M/$(1),$(1),hg255d,HG255D)
+ 
+ Image/Build/Profile/FREESTATION5=$(call BuildFirmware/Default8M/$(1),$(1),freestation5,FREESTATION5)
+ 
+@@ -730,7 +730,7 @@
+ 	$(call Image/Build/Profile/F5D8235V2,$(1))
+ 	$(call Image/Build/Profile/FONERA20N,$(1))
+ 	$(call Image/Build/Profile/FREESTATION5,$(1))
+-#	$(call Image/Build/Profile/HG255D,$(1))
++	$(call Image/Build/Profile/HG255D,$(1))
+ 	$(call Image/Build/Profile/HLKRM04,$(1))
+ 	$(call Image/Build/Profile/HT-TM02,$(1))
+ 	$(call Image/Build/Profile/HW550-3G,$(1))

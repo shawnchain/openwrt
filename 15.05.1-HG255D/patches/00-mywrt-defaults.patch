@@ -1,0 +1,36 @@
+--- a/openwrt-src/package/kernel/mac80211/files/lib/wifi/mac80211.sh	2016-09-12 16:22:00.337973690 +0800
++++ b/openwrt-src/package/kernel/mac80211/files/lib/wifi/mac80211.sh	2016-09-12 16:53:47.205922403 +0800
+@@ -121,7 +121,7 @@
+ 	option device   radio$devidx
+ 	option network  lan
+ 	option mode     ap
+-	option ssid     OpenWrt
++	option ssid     MyWrt
+ 	option encryption none
+
+ EOF
+--- a/openwrt-src/package/base-files/files/etc/shadow
++++ b/openwrt-src/package/base-files/files/etc/shadow
+@@ -1,4 +1,4 @@
+-root::0:0:99999:7:::
++root:$1$3Xw8c3p2$X/haRlpZ/4QZAQFFBI40./:0:0:99999:7:::
+ daemon:*:0:0:99999:7:::
+ ftp:*:0:0:99999:7:::
+ network:*:0:0:99999:7:::
+--- /dev/null
++++ b/openwrt-src/package/base-files/files/etc/uci-defaults/20_mywrt-network
+@@ -0,0 +1,13 @@
++#!/bin/sh
++uci set network.lan.ipaddr=192.168.99.1
++uci commit network
++
++uci set luci.main.lang='zh_cn'
++uci commit luci
++
++uci set system.@system[0].hostname='MyWrt'
++uci set system.@system[0].zonename='Asia/Shanghai'
++uci set system.@system[0].timezone='CST-8'
++uci commit system
++exit 0
++
+

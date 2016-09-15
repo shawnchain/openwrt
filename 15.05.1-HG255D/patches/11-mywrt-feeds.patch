@@ -1,9 +1,0 @@
-Index: openwrt-src/package/system/opkg/files/customfeeds.conf
-===================================================================
---- openwrt-src.orig/package/system/opkg/files/customfeeds.conf	2016-09-13 01:34:31.989082046 +0800
-+++ openwrt-src/package/system/opkg/files/customfeeds.conf	2016-09-13 01:34:48.305081607 +0800
-@@ -1,3 +1,4 @@
- # add your custom package feeds here
- #
- # src/gz example_feed_name http://www.example.com/path/to/files
-+src/gz my_base http://mclub.to/openwrt/15.05.1/ramips/rt305x/packages/base
