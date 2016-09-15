@@ -3,7 +3,8 @@
 openwrt_dir = openwrt-src
 host_packages = build-essential git flex gettext libncurses5-dev unzip gawk liblzma-dev u-boot-tools
 openwrt_feeds = luci luci-app-ddns
-config_file = hg255d-mywrt-full.config
+#config_file = hg255d-mywrt-full.config
+config_file = h618b-mywrt-aprs.config
 
 image: .prepare_config
 	@make -C $(openwrt_dir)
@@ -25,16 +26,29 @@ image: .prepare_config
 	@cd $(openwrt_dir); ./scripts/feeds update;
 	@touch .update_feeds
 
+# $(1) patch type
+define ApplyPatches
+	@cd $(openwrt_dir) && cat ../patches/$(1)/*.patch | patch -p2
+endef
+
+define UnApplyPatches
+        @cd $(openwrt_dir) && cat ../patches/$(1)/*.patch | patch -p2 -R
+endef
+
 .patched: .checkout_src
-	@cd $(openwrt_dir) && cat ../patches/*.patch | patch -p2
-	@cd $(openwrt_dir) && cat ../patches/hg255d/*.patch | patch -p2
+	$(call ApplyPatches,common)
+	#$(call ApplyPatches,hg255d)
+	$(call ApplyPatches,h618b)
+	$(call ApplyPatches,aprs)
 	@touch .patched
 
 patch: .patched
 
 unpatch:
-	[ -f .patched ] && cd $(openwrt_dir) && cat ../patches/*.patch | patch -p2 -R 
-	[ -f .patched ] && cd $(openwrt_dir) && cat ../patches/hg255d/*.patch | patch -p2 -R 
+	$(call UnApplyPatches,common)
+	#$(call UnApplyPatches,hg255d)
+	$(call UnApplyPatches,h618b)
+	$(call UnApplyPatches,aprs)
 	rm -f .patched
 
 # 2. Checkout source code:
