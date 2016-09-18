@@ -41,6 +41,9 @@ define BuildImage
 		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) $(3)"
 endef
 
+brcm63xx: $(PREPARED_TARGETS)
+	$(call BuildImage,brcm63xx,RG100A,kmod-b43)
+
 brcm47xx: $(PREPARED_TARGETS)
 	$(call BuildImage,brcm47xx,Broadcom-b43,kmod-b43legacy)
 
