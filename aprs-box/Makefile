@@ -1,7 +1,7 @@
-BUILDER ?= OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64
-SDK ?= OpenWrt-SDK-ramips-mt7620_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64
-BUILDER_TGZ ?= mywrt-imagebuilder-15.05.1-mt7620.tar.bz2
-SDK_TGZ ?= mywrt-sdk-15.05.1-mt7620.tar.bz2
+BUILDER ?= builder
+SDK ?= sdk
+BUILDER_TGZ ?= OpenWrt-ImageBuilder-15.05.1-brcm63xx-generic.Linux-x86_64.tar.bz2
+SDK_TGZ ?= OpenWrt-SDK-15.05.1-brcm63xx-generic_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 
 OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 \
@@ -18,6 +18,13 @@ OPKG_APRS_PACKAGES := kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-ser
 	screen terminfo
 OPKG_APRS_PACKAGES += libpthread aprx 
 PREPARED_TARGETS += .check_sdk .aprx 
+
+# for network packages as NAS or GW
+ifeq ($(NETWORK),1)
+	OPKG_APRS_PACKAGES += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
+		file-storage kmod-proto-bridge kmod-yavlan
+	PREPARED_TARGETS += .network
+endif
 
 define UpdatePackageIndex
 	[ -d $(SDK)/bin/$1/packages ] && cd "$(SDK)/bin/$1/packages" && ../../../scripts/ipkg-make-index.sh . > Packages && gzip -9c Packages > Packages.gz
@@ -36,22 +43,24 @@ define BuildImage
 	cp -f files/$(1)/opkg.conf $(BUILDER)/target/linux/$(1)/base-files/etc/opkg.conf
 	[ -d files/common ] && cp -fr files/common/* $(BUILDER)/target/linux/$(1)/base-files
 	[ -d files/$(1) ] && cp -fr files/$(1)/* $(BUILDER)/target/linux/$(1)/base-files
+	@echo "----------------------------------------------------------------------------------"
 	make -C $(BUILDER) image PROFILE=$(2) \
 		FILES="$(shell cd $(BUILDER); pwd)/target/linux/$1/base-files" \
 		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) $(3)"
+	@echo "----------------------------------------------------------------------------------"
 endef
 
 brcm63xx: $(PREPARED_TARGETS)
 	$(call BuildImage,brcm63xx,RG100A,kmod-b43)
 
 brcm47xx: $(PREPARED_TARGETS)
-	$(call BuildImage,brcm47xx,Broadcom-b43,kmod-b43legacy)
+	$(call BuildImage,brcm47xx,Broadcom-b43,kmod-b43)
 
 rt305x:$(PREPARED_TARGETS)
 	$(call BuildImage,rt305x,Default,kmod-rt2800-soc)
 
 mt7620: $(PREPARED_TARGETS)
-	$(call BuildImage,mt7620,Default,"kmod-mt7620 kmod-mt76x2e")
+	$(call BuildImage,mt7620,Default,kmod-mt7620 kmod-mt76x2e)
 
 .patched:
 	@cd $(BUILDER); cat ../patches/*.patch | patch -p2
@@ -62,9 +71,12 @@ mt7620: $(PREPARED_TARGETS)
 	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
 	make package/aprx/compile V=s -C "$(SDK)"
 
-.gfw:
+.network:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
 	@cd $(SDK)/package; [ -d network-feeds ] && { cd network-feeds; git pull; } || git clone https://github.com/rssnsj/network-feeds.git
+	# update the network feed list
+	make -C $(SDK)/package/network-feeds/ipset-lists/tools
+	# compile packages
 	make package/ipset-lists/compile V=s -C "$(SDK)"
 	make package/shadowsocks-libev/compile V=s -C "$(SDK)"
 	make package/shadowsocks-tools/compile V=s -C "$(SDK)"
@@ -106,5 +118,6 @@ clean: .check_ib
 		cd $(BUILDER); cat ../patches/*.patch | patch -R -p2; cd ..; \
 		rm -vf .patched; \
 	fi
-	[ -n "$(SDK)" -a -d "$(SDK)"/bin/ramips ] && rm -rf "$(SDK)"/bin/ramips/* || :
-	[ -n "$(SDK)" -a -d "$(SDK)"/bin/brcm47xx ] && rm -rf "$(SDK)"/bin/brcm47xx/* || :
+	@[ -n "$(SDK)" -a -d "$(SDK)"/bin/ramips ] && rm -rf "$(SDK)"/bin/ramips/* || :
+	@[ -n "$(SDK)" -a -d "$(SDK)"/bin/brcm47xx ] && rm -rf "$(SDK)"/bin/brcm47xx/* || :
+	@[ -n "$(SDK)" -a -d "$(SDK)"/bin/brcm63xx ] && rm -rf "$(SDK)"/bin/brcm63xx/* || :

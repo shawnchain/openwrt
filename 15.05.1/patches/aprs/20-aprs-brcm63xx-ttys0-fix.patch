@@ -4,8 +4,8 @@
  CONFIG_CC_OPTIMIZE_FOR_SIZE=y
  CONFIG_CEVT_R4K=y
  CONFIG_CLONE_BACKWARDS=y
--CONFIG_CMDLINE="root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=
-+CONFIG_CMDLINE="root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=
+-CONFIG_CMDLINE="root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200"
++CONFIG_CMDLINE="root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=/dev/null"
  CONFIG_CMDLINE_BOOL=y
  # CONFIG_CMDLINE_OVERRIDE is not set
  CONFIG_CPU_BIG_ENDIAN=y
