@@ -1,7 +1,9 @@
-BUILDER ?= builder
-SDK ?= sdk
-BUILDER_TGZ ?= OpenWrt-ImageBuilder-15.05.1-brcm63xx-generic.Linux-x86_64.tar.bz2
-SDK_TGZ ?= OpenWrt-SDK-15.05.1-brcm63xx-generic_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
+BUILDER := builder
+SDK := sdk
+BRCM47XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm47xx-legacy.Linux-x86_64.tar.bz2
+BRCM47XX_SDK_TGZ := OpenWrt-SDK-15.05.1-brcm47xx-legacy_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
+BRCM63XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm63xx-generic.Linux-x86_64.tar.bz2
+BRCM63XX_SDK_TGZ := OpenWrt-SDK-15.05.1-brcm63xx-generic_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 
 OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 \
@@ -75,7 +77,7 @@ mt7620: $(PREPARED_TARGETS)
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
 	@cd $(SDK)/package; [ -d network-feeds ] && { cd network-feeds; git pull; } || git clone https://github.com/rssnsj/network-feeds.git
 	# update the network feed list
-	make -C $(SDK)/package/network-feeds/ipset-lists/tools
+	#make -C $(SDK)/package/network-feeds/ipset-lists/tools
 	# compile packages
 	make package/ipset-lists/compile V=s -C "$(SDK)"
 	make package/shadowsocks-libev/compile V=s -C "$(SDK)"
@@ -99,10 +101,20 @@ mt7620: $(PREPARED_TARGETS)
 	fi
 
 # Try extracting ImageBuilder & SDK to current directory
-extract:
-	@[ -d "$(BUILDER)" ] || tar jxvf /opt/openwrt/dl/$(BUILDER_TGZ)
-	@[ -d "$(SDK)" ] || tar jxvf /opt/openwrt/dl/$(SDK_TGZ)
+define ExtractImageBuilder
+	@[ -d "$(subst .tar.bz2,,$(1))" ] || echo extracting $(1) && tar jxf /opt/openwrt/dl/$(1)
+        @[ -d "$(subst .tar.bz2,,$(2))" ] || echo extracting $(2) && tar jxf /opt/openwrt/dl/$(2)
+        rm -f builder sdk
+        ln -s $(subst .tar.bz2,,$(1)) builder
+        ln -s $(subst .tar.bz2,,$(2)) sdk
+endef
 
+extract_brcm63xx:
+	$(call ExtractImageBuilder,$(BRCM63XX_BUILDER_TGZ),$(BRCM63XX_SDK_TGZ))
+
+extract_brcm47xx:
+	$(call ExtractImageBuilder,$(BRCM47XX_BUILDER_TGZ),$(BRCM47XX_SDK_TGZ))
+	
 help:
 	@echo "Usage:"
 	@echo "  make mt7620 		build OpenWrt firmware with APRS software installed for Lenovo Y1/Y1S (MT7620 board)"
@@ -122,3 +134,9 @@ clean: .check_ib
 	@[ -n "$(SDK)" -a -d "$(SDK)"/bin/ramips ] && rm -rf "$(SDK)"/bin/ramips/* || :
 	@[ -n "$(SDK)" -a -d "$(SDK)"/bin/brcm47xx ] && rm -rf "$(SDK)"/bin/brcm47xx/* || :
 	@[ -n "$(SDK)" -a -d "$(SDK)"/bin/brcm63xx ] && rm -rf "$(SDK)"/bin/brcm63xx/* || :
+
+distclean:
+	rm -fr OpenWrt-ImageBuilder-*
+	rm -fr OpenWrt-SDK-*
+	rm -f .patched
+	rm -f sdk builder
