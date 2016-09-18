@@ -105,12 +105,13 @@ extract:
 
 help:
 	@echo "Usage:"
-	@echo "  make mt7620		build OpenWrt firmware with APRS software installed for Lenovo Y1/Y1S (MT7620 board)"
+	@echo "  make mt7620 		build OpenWrt firmware with APRS software installed for Lenovo Y1/Y1S (MT7620 board)"
 	@echo "  make rt305x		build OpenWrt firmware with APRS software installed for Huawei RG255D(RT305x board)"
 	@echo "  make brcm47xx		build OpenWrt firmware with APRS software installed for H618B(BRCM47XX board)"
+	@echo "  make brcm63xx		build OpenWrt firmware with APRS software installed for H618C(BRCM63XX board)"
 	
 	@echo "Options:"
-	@echo "  none"
+	@echo "  NETWORK=1                    build and install Shadowsocks, minivtun, kmod-proto-bridge, kmod-yavlan"
 
 clean: .check_ib
 	make clean -C $(BUILDER)
