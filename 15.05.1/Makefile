@@ -2,7 +2,7 @@
 #
 openwrt_dir = openwrt-src
 host_packages = build-essential git flex gettext libncurses5-dev unzip gawk liblzma-dev u-boot-tools
-openwrt_feeds = luci luci-app-ddns
+openwrt_feeds = luci luci-app-ddns screen
 #config_file = hg255d-mywrt-full.config
 config_file = h618b-mywrt-aprs.config
 
@@ -20,10 +20,13 @@ image: .prepare_config
 	@cd $(openwrt_dir)/package; \
 	 [ -e rssnsj-feeds ] || git clone https://github.com/rssnsj/network-feeds.git rssnsj-feeds; \
 		make -C rssnsj-feeds/ipset-lists/tools
+	# the my feeds with aprs support
+	@cd $(openwrt_dir)/package; \
+	 [ -e my-feeds ] || git clone https://github.com/shawnchain/openwrt-feeds my-feeds;
 	@touch .install_feeds
 
 .update_feeds: .patched
-	@cd $(openwrt_dir); ./scripts/feeds update;
+	@cd $(openwrt_dir); ./scripts/feeds update -a;
 	@touch .update_feeds
 
 # $(1) patch type
