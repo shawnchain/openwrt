@@ -23,9 +23,14 @@ PREPARED_TARGETS += .check_sdk .aprx
 
 # for network packages as NAS or GW
 ifeq ($(NETWORK),1)
-	OPKG_APRS_PACKAGES += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
-		file-storage kmod-proto-bridge kmod-yavlan
-	PREPARED_TARGETS += .network
+        OPKG_APRS_PACKAGES += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
+                kmod-proto-bridge kmod-yavlan
+        PREPARED_TARGETS += .network
+endif
+
+ifeq ($(NAS),1)
+        OPKG_APRS_PACKAGES += file-storage
+        PREPARED_TARGETS += .network
 endif
 
 define UpdatePackageIndex
@@ -64,8 +69,10 @@ rt305x:$(PREPARED_TARGETS)
 mt7620: $(PREPARED_TARGETS)
 	$(call BuildImage,mt7620,Default,kmod-mt7620 kmod-mt76x2e)
 
+
+
 .patched:
-	@cd $(BUILDER); cat ../patches/*.patch | patch -p2
+	#@cd $(BUILDER); cat ../patches/*.patch | patch -p2
 	touch .patched
 
 .aprx:
@@ -140,3 +147,17 @@ distclean:
 	rm -fr OpenWrt-SDK-*
 	rm -f .patched
 	rm -f sdk builder
+
+DEPLOY_ROOT := hamclub:/opt/openwrt/build/customize/15.05.1
+deploy_packages:
+	@[ ! -d sdk/bin/brcm63xx/packages ] || scp -r sdk/bin/brcm63xx/packages/* $(DEPLOY_ROOT)/brcm63xx/generic/packages/
+	@[ ! -d sdk/bin/brcm47xx/packages ] || scp -r sdk/bin/brcm47xx/packages/* $(DEPLOY_ROOT)/brcm47xx/legacy/packages/
+
+deploy:
+ifeq ($(TYPE),)
+	[ ! -f builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin $(DEPLOY_ROOT)/15.05.1-h618c-aprs-squashfs-cfe.bin
+	[ ! -f builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx ] || scp builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx $(DEPLOY_ROOT)/15.05.1-h618b-aprs-squashfs.trx
+else
+	[ ! -f builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin $(DEPLOY_ROOT)/15.05.1-h618c-$(TYPE)-squashfs-cfe.bin
+	[ ! -f builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx ] || scp builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx $(DEPLOY_ROOT)/15.05.1-h618b-$(TYPE)-squashfs.trx
+endif

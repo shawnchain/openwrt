@@ -147,3 +147,17 @@ distclean:
 	rm -fr OpenWrt-SDK-*
 	rm -f .patched
 	rm -f sdk builder
+
+DEPLOY_ROOT := hamclub:/opt/openwrt/build/customize/14.07
+deploy_packages:
+	@[ ! -d sdk/bin/brcm63xx/packages ] || scp -r sdk/bin/brcm63xx/packages/* $(DEPLOY_ROOT)/brcm63xx/generic/packages/
+	@[ ! -d sdk/bin/brcm47xx/packages ] || scp -r sdk/bin/brcm47xx/packages/* $(DEPLOY_ROOT)/brcm47xx/legacy/packages/
+
+deploy:
+ifeq ($(TYPE),)
+	[ ! -f builder/bin/brcm63xx/openwrt-RG100A_DB120-squashfs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-RG100A_DB120-squashfs-cfe.bin $(DEPLOY_ROOT)/14.07-h618c-aprs-squashfs-cfe.bin
+	[ ! -f builder/bin/brcm47xx/openwrt-brcm47xx-legacy-squashfs.trx ] || scp builder/bin/brcm47xx/openwrt-brcm47xx-legacy-squashfs.trx $(DEPLOY_ROOT)/14.07-h618b-aprs-squashfs-cfe.bin
+else
+	[ ! -f builder/bin/brcm63xx/openwrt-RG100A_DB120-squashfs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-RG100A_DB120-squashfs-cfe.bin $(DEPLOY_ROOT)/14.07-h618c-$(TYPE)-squashfs-cfe.bin
+	[ ! -f builder/bin/brcm47xx/openwrt-brcm47xx-legacy-squashfs.trx ] || scp builder/bin/brcm47xx/openwrt-brcm47xx-legacy-squashfs.trx $(DEPLOY_ROOT)/14.07-h618b-$(TYPE)-squashfs-cfe.bin
+endif
