@@ -9,7 +9,7 @@ OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 \
 	kmod-usb-serial \
 	librt libubus-lua libuci-lua lua \
-	luci luci-base luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn \
+	luci luci-base luci-app-firewall luci-base luci-i18n-english luci-i18n-chinese \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
 	uclibcxx rpcd uhttpd uhttpd-mod-ubus zlib openssl-util
 OPKG_PACKAGES_EXTRA := kmod-lib-textsearch
@@ -24,7 +24,12 @@ PREPARED_TARGETS += .check_sdk .aprx
 # for network packages as NAS or GW
 ifeq ($(NETWORK),1)
 	OPKG_APRS_PACKAGES += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
-		file-storage kmod-proto-bridge kmod-yavlan
+		kmod-proto-bridge kmod-yavlan
+	PREPARED_TARGETS += .network
+endif
+
+ifeq ($(NAS),1)
+	OPKG_APRS_PACKAGES += file-storage
 	PREPARED_TARGETS += .network
 endif
 
