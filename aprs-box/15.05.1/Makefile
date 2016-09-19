@@ -1,36 +1,36 @@
 BUILDER := builder
 SDK := sdk
-BRCM47XX_BUILDER_TGZ := OpenWrt-ImageBuilder-brcm47xx_legacy-for-linux-x86_64.tar.bz2
-BRCM47XX_SDK_TGZ := OpenWrt-SDK-brcm47xx-for-linux-x86_64-gcc-4.8-linaro_uClibc-0.9.33.2.tar.bz2
-BRCM63XX_BUILDER_TGZ := OpenWrt-ImageBuilder-brcm63xx_generic-for-linux-x86_64.tar.bz2
-BRCM63XX_SDK_TGZ := OpenWrt-SDK-brcm63xx-for-linux-x86_64-gcc-4.8-linaro_uClibc-0.9.33.2.tar.bz2
+BRCM47XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm47xx-legacy.Linux-x86_64.tar.bz2
+BRCM47XX_SDK_TGZ := OpenWrt-SDK-15.05.1-brcm47xx-legacy_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
+BRCM63XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm63xx-generic.Linux-x86_64.tar.bz2
+BRCM63XX_SDK_TGZ := OpenWrt-SDK-15.05.1-brcm63xx-generic_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 
 OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 \
 	kmod-usb-serial \
 	librt libubus-lua libuci-lua lua \
-	luci luci-base luci-app-firewall luci-base luci-i18n-english luci-i18n-chinese \
+	luci luci-base luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
 	uclibcxx rpcd uhttpd uhttpd-mod-ubus zlib openssl-util
 OPKG_PACKAGES_EXTRA := kmod-lib-textsearch
 PREPARED_TARGETS = .check_ib .patched
 
 # for aprs/aprx
-OPKG_APRS_PACKAGES := kmod-usb-serial-pl2303 kmod-usb-serial-cp210x \
+OPKG_APRS_PACKAGES := kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi \
 	screen terminfo
 OPKG_APRS_PACKAGES += libpthread aprx 
 PREPARED_TARGETS += .check_sdk .aprx 
 
 # for network packages as NAS or GW
 ifeq ($(NETWORK),1)
-	OPKG_APRS_PACKAGES += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
-		kmod-proto-bridge kmod-yavlan
-	PREPARED_TARGETS += .network
+        OPKG_APRS_PACKAGES += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
+                kmod-proto-bridge kmod-yavlan
+        PREPARED_TARGETS += .network
 endif
 
 ifeq ($(NAS),1)
-	OPKG_APRS_PACKAGES += file-storage
-	PREPARED_TARGETS += .network
+        OPKG_APRS_PACKAGES += file-storage
+        PREPARED_TARGETS += .network
 endif
 
 define UpdatePackageIndex
@@ -69,8 +69,10 @@ rt305x:$(PREPARED_TARGETS)
 mt7620: $(PREPARED_TARGETS)
 	$(call BuildImage,mt7620,Default,kmod-mt7620 kmod-mt76x2e)
 
+
+
 .patched:
-	@cd $(BUILDER); cat ../patches/*.patch | patch -p2
+	#@cd $(BUILDER); cat ../patches/*.patch | patch -p2
 	touch .patched
 
 .aprx:
@@ -121,8 +123,6 @@ extract_brcm47xx:
 	$(call ExtractImageBuilder,$(BRCM47XX_BUILDER_TGZ),$(BRCM47XX_SDK_TGZ))
 	
 help:
-	@echo "APRS Image Build Script for 14.07"
-	@echo "---------------------------------"
 	@echo "Usage:"
 	@echo "  make mt7620 		build OpenWrt firmware with APRS software installed for Lenovo Y1/Y1S (MT7620 board)"
 	@echo "  make rt305x		build OpenWrt firmware with APRS software installed for Huawei RG255D(RT305x board)"
@@ -148,16 +148,16 @@ distclean:
 	rm -f .patched
 	rm -f sdk builder
 
-DEPLOY_ROOT := hamclub:/opt/openwrt/build/customize/14.07
+DEPLOY_ROOT := hamclub:/opt/openwrt/build/customize/15.05.1
 deploy_packages:
 	@[ ! -d sdk/bin/brcm63xx/packages ] || scp -r sdk/bin/brcm63xx/packages/* $(DEPLOY_ROOT)/brcm63xx/generic/packages/
 	@[ ! -d sdk/bin/brcm47xx/packages ] || scp -r sdk/bin/brcm47xx/packages/* $(DEPLOY_ROOT)/brcm47xx/legacy/packages/
 
 deploy:
 ifeq ($(TYPE),)
-	[ ! -f builder/bin/brcm63xx/openwrt-RG100A_DB120-squashfs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-RG100A_DB120-squashfs-cfe.bin $(DEPLOY_ROOT)/14.07-h618c-aprs-squashfs-cfe.bin
-	[ ! -f builder/bin/brcm47xx/openwrt-brcm47xx-legacy-squashfs.trx ] || scp builder/bin/brcm47xx/openwrt-brcm47xx-legacy-squashfs.trx $(DEPLOY_ROOT)/14.07-h618b-aprs-squashfs-cfe.bin
+	[ ! -f builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin $(DEPLOY_ROOT)/15.05.1-h618c-aprs-squashfs-cfe.bin
+	[ ! -f builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx ] || scp builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx $(DEPLOY_ROOT)/15.05.1-h618b-aprs-squashfs.trx
 else
-	[ ! -f builder/bin/brcm63xx/openwrt-RG100A_DB120-squashfs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-RG100A_DB120-squashfs-cfe.bin $(DEPLOY_ROOT)/14.07-h618c-$(TYPE)-squashfs-cfe.bin
-	[ ! -f builder/bin/brcm47xx/openwrt-brcm47xx-legacy-squashfs.trx ] || scp builder/bin/brcm47xx/openwrt-brcm47xx-legacy-squashfs.trx $(DEPLOY_ROOT)/14.07-h618b-$(TYPE)-squashfs-cfe.bin
+	[ ! -f builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin $(DEPLOY_ROOT)/15.05.1-h618c-$(TYPE)-squashfs-cfe.bin
+	[ ! -f builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx ] || scp builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx $(DEPLOY_ROOT)/15.05.1-h618b-$(TYPE)-squashfs.trx
 endif
