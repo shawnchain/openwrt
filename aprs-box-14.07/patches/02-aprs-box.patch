@@ -1,0 +1,39 @@
+Index: aprs-box/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ramips/dts/Y1.dtsi
+===================================================================
+--- aprs-box.orig/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ramips/dts/Y1.dtsi
++++ aprs-box/OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64/target/linux/ramips/dts/Y1.dtsi
+@@ -2,7 +2,7 @@
+ 
+ / {
+ 	chosen {
+-		bootargs = "console=ttyS0,115200";
++		bootargs = "console=/dev/null";
+ 	};
+ 	
+ 	palmbus@10000000 {
+Index: aprs-box/builder/target/linux/brcm47xx/config-3.18
+===================================================================
+--- aprs-box.orig/builder/target/linux/brcm47xx/config-3.18
++++ aprs-box/builder/target/linux/brcm47xx/config-3.18
+@@ -35,7 +35,7 @@ CONFIG_BCMA_SFLASH=y
+ CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+ CONFIG_CEVT_R4K=y
+ CONFIG_CLONE_BACKWARDS=y
+-CONFIG_CMDLINE="noinitrd console=ttyS0,115200"
++CONFIG_CMDLINE="noinitrd console=/dev/null"
+ CONFIG_CMDLINE_BOOL=y
+ # CONFIG_CMDLINE_OVERRIDE is not set
+ # CONFIG_CPU_BMIPS is not set
+Index: aprs-box/builder/target/linux/brcm63xx/config-3.18
+===================================================================
+--- aprs-box.orig/builder/target/linux/brcm63xx/config-3.18
++++ aprs-box/builder/target/linux/brcm63xx/config-3.18
+@@ -48,7 +48,7 @@ CONFIG_BOARD_LIVEBOX=y
+ CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+ CONFIG_CEVT_R4K=y
+ CONFIG_CLONE_BACKWARDS=y
+-CONFIG_CMDLINE="root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200"
++CONFIG_CMDLINE="root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=/dev/null"
+ CONFIG_CMDLINE_BOOL=y
+ # CONFIG_CMDLINE_OVERRIDE is not set
+ CONFIG_CPU_BIG_ENDIAN=y
