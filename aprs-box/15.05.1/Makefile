@@ -15,11 +15,11 @@ OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 OPKG_PACKAGES_EXTRA := kmod-lib-textsearch
 PREPARED_TARGETS = .check_ib .patched
 
-# for aprs/aprx
+# for aprs packages
 OPKG_APRS_PACKAGES := kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi \
 	screen terminfo
-OPKG_APRS_PACKAGES += libpthread aprx 
-PREPARED_TARGETS += .check_sdk .aprx 
+OPKG_APRS_PACKAGES += libpthread aprx tinyaprs
+PREPARED_TARGETS += .check_sdk .aprs 
 
 # for network packages as NAS or GW
 ifeq ($(NETWORK),1)
@@ -75,10 +75,11 @@ mt7620: $(PREPARED_TARGETS)
 	#@cd $(BUILDER); cat ../patches/*.patch | patch -p2
 	touch .patched
 
-.aprx:
+.aprs:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
 	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
 	make package/aprx/compile V=s -C "$(SDK)"
+	make package/tinyaprs/compile V=s -C "$(SDK)"
 
 .network:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :

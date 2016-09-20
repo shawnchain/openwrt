@@ -57,3 +57,7 @@ cc: cc1 cc2
 bb: bb1 bb2
 
 all: bb cc
+
+distclean:
+	make -C 14.07 distclean
+	make -C 15.05.1 distclean
