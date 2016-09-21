@@ -26,6 +26,20 @@ cc2:
 	make -C 15.05.1 deploy
 #	make -C 15.05.1 distclean	
 
+cc3:
+	@echo "============================================================"
+	@echo "= Building OpenWrt-15.05.1 APRS image for MT7620 devices   ="
+	@echo "============================================================"
+	make -C 15.05.1 extract_mt7620
+	make -C 15.05.1 mt7620 NETWORK=1 NAS=1
+	make -C 15.05.1 deploy_packages
+	make -C 15.05.1 deploy TYPE=full
+	make -C 15.05.1 mt7620 NETWORK=1
+	make -C 15.05.1 deploy TYPE=net
+	make -C 15.05.1 mt7620
+	make -C 15.05.1 deploy
+#	make -C 15.05.1 distclean	
+
 bb1:
 	@echo "==========================================================="
 	@echo "= Building OpenWrt-14.07 APRS image for BRCM47XX devices ="
@@ -53,7 +67,7 @@ bb2:
 	make -C 14.07 deploy
 #	make -C 14.07 distclean
 
-cc: cc1 cc2
+cc: cc1 cc2 cc3
 bb: bb1 bb2
 
 all: bb cc
