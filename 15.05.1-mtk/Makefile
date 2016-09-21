@@ -18,6 +18,8 @@ mtk: .prepare_config
 	@cd $(openwrt_dir)/package; \
 	 [ -e rssnsj-feeds ] || git clone https://github.com/rssnsj/network-feeds.git rssnsj-feeds; \
 		make -C rssnsj-feeds/ipset-lists/tools
+	@cd $(openwrt_dir)/package; \
+	 [ -e aprs-feeds ] || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds;
 	@touch .install_feeds
 
 .update_feeds: .patched
