@@ -171,10 +171,11 @@ deploy_packages:
 
 deploy:
 ifeq ($(TYPE),)
-	[ ! -f builder/bin/ramips/openwrt-15.05.1-mt7620-fs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin $(DEPLOY_ROOT)/15.05.1-h618c-aprs-squashfs-cfe.bin
+	[ ! -f builder/bin/ramips/openwrt-ramips-mt7620-Lenovo-y1-notty-squashfs-sysupgrade.bin ] || scp builder/bin/ramips/openwrt-ramips-mt7620-Lenovo-y1-notty-squashfs-sysupgrade.bin $(DEPLOY_ROOT)/15.05.1-Lenovo-y1-aprs-squashfs.bin
 	[ ! -f builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin $(DEPLOY_ROOT)/15.05.1-h618c-aprs-squashfs-cfe.bin
 	[ ! -f builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx ] || scp builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx $(DEPLOY_ROOT)/15.05.1-h618b-aprs-squashfs.trx
 else
+	[ ! -f builder/bin/ramips/openwrt-ramips-mt7620-Lenovo-y1-notty-squashfs-sysupgrade.bin ] || scp builder/bin/ramips/openwrt-ramips-mt7620-Lenovo-y1-notty-squashfs-sysupgrade.bin $(DEPLOY_ROOT)/15.05.1-Lenovo-y1-$(TYPE)-squashfs.bin
 	[ ! -f builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin ] || scp builder/bin/brcm63xx/openwrt-15.05.1-brcm63xx-generic-RG100A-squashfs-cfe.bin $(DEPLOY_ROOT)/15.05.1-h618c-$(TYPE)-squashfs-cfe.bin
 	[ ! -f builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx ] || scp builder/bin/brcm47xx/openwrt-15.05.1-brcm47xx-legacy-squashfs.trx $(DEPLOY_ROOT)/15.05.1-h618b-$(TYPE)-squashfs.trx
 endif
