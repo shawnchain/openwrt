@@ -40,36 +40,37 @@ define UpdatePackageIndex
 endef
 
 # $(1): chip arch type
-# $(2): image profile name
-# $(3): special package names to include
+# $(2): board type
+# $(3): image profile name
+# $(4): special package names to include
 define BuildImage
 	$(call UpdatePackageIndex,$(1))
 	mkdir -p $(BUILDER)/dl
-	cp -f files/$(1)/repo-base.conf $(BUILDER)/repositories.conf
+	cp -f files/$(2)/repo-base.conf $(BUILDER)/repositories.conf
 	@[ -n "$(SDK)" -a -f "$(SDK)"/bin/$(1)/packages/Packages ] && \
 		echo "src aprs file:$(shell cd $(SDK)/bin/$(1)/packages; pwd)" >> $(BUILDER)/repositories.conf || :	
 	mkdir -p $(BUILDER)/target/linux/$(1)/base-files/etc
-	cp -f files/$(1)/opkg.conf $(BUILDER)/target/linux/$(1)/base-files/etc/opkg.conf
+	cp -f files/$(2)/opkg.conf $(BUILDER)/target/linux/$(1)/base-files/etc/opkg.conf
 	[ -d files/common ] && cp -fr files/common/* $(BUILDER)/target/linux/$(1)/base-files
-	[ -d files/$(1) ] && cp -fr files/$(1)/* $(BUILDER)/target/linux/$(1)/base-files
+	[ -d files/$(2) ] && cp -fr files/$(2)/* $(BUILDER)/target/linux/$(1)/base-files
 	@echo "----------------------------------------------------------------------------------"
-	make -C $(BUILDER) image PROFILE=$(2) \
+	make -C $(BUILDER) image PROFILE=$(3) \
 		FILES="$(shell cd $(BUILDER); pwd)/target/linux/$1/base-files" \
-		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) $(3)"
+		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) $(4)"
 	@echo "----------------------------------------------------------------------------------"
 endef
 
 brcm63xx: $(PREPARED_TARGETS)
-	$(call BuildImage,brcm63xx,RG100A,kmod-b43)
+	$(call BuildImage,brcm63xx,brcm63xx,RG100A,kmod-b43)
 
 brcm47xx: $(PREPARED_TARGETS)
-	$(call BuildImage,brcm47xx,Broadcom-b43,kmod-b43)
+	$(call BuildImage,brcm47xx,brcm47xx,Broadcom-b43,kmod-b43)
 
 rt305x:$(PREPARED_TARGETS)
-	$(call BuildImage,rt305x,Default,kmod-rt2800-soc)
+	$(call BuildImage,ramips,rt305x,Default,kmod-rt2800-soc)
 
 mt7620: $(PREPARED_TARGETS)
-	$(call BuildImage,mt7620,Default,kmod-mt7620 kmod-mt76x2e)
+	$(call BuildImage,ramips,mt7620,Default,kmod-mt7620 kmod-mt76x2e)
 
 
 
