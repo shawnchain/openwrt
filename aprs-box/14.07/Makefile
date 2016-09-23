@@ -11,7 +11,7 @@ OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	librt libubus-lua libuci-lua lua \
 	luci luci-base luci-app-firewall luci-base luci-i18n-english luci-i18n-chinese \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
-	uclibcxx rpcd uhttpd uhttpd-mod-ubus zlib openssl-util
+	uclibcxx rpcd uhttpd uhttpd-mod-ubus zlib openssl-util wget ca-certificates 
 OPKG_PACKAGES_EXTRA := kmod-lib-textsearch
 PREPARED_TARGETS = .check_ib .patched
 
