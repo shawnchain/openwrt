@@ -13,6 +13,7 @@ OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	librt libubus-lua libuci-lua lua \
 	luci luci-base luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
+	luci-app-commands luci-i18n-commands-zh-cn \
 	uclibcxx rpcd uhttpd uhttpd-mod-ubus zlib openssl-util
 OPKG_PACKAGES_EXTRA := kmod-lib-textsearch
 PREPARED_TARGETS = .check_ib .patched
@@ -20,7 +21,7 @@ PREPARED_TARGETS = .check_ib .patched
 # for aprs packages
 OPKG_APRS_PACKAGES := kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi \
 	screen terminfo
-OPKG_APRS_PACKAGES += libpthread aprx tinyaprs
+OPKG_APRS_PACKAGES += libpthread tinyaprs
 PREPARED_TARGETS += .check_sdk .aprs 
 
 # for network packages as NAS or GW
