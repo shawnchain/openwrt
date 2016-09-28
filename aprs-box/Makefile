@@ -46,7 +46,7 @@ bb1:
 	@echo "=========================================================="
 	make -C 14.07 extract_brcm47xx
 	#make -C 14.07 brcm47xx NETWORK=1 NAS=1
-	make -C 14.07 .network NAS=1
+	make -C 14.07 .aprs .network NAS=1
 	make -C 14.07 deploy_packages
 	#make -C 14.07 deploy TYPE=full
 	make -C 14.07 brcm47xx NETWORK=1
