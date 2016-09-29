@@ -4,7 +4,7 @@ openwrt_dir = openwrt-src
 host_packages = build-essential git flex gettext libncurses5-dev unzip gawk liblzma-dev u-boot-tools
 openwrt_feeds = luci luci-app-ddns screen
 #config_file = hg255d-mywrt-full.config
-config_file = h618b-mywrt-aprs.config
+config_file = h618b-mywrt.config
 
 image: .prepare_config
 	@make -C $(openwrt_dir)
