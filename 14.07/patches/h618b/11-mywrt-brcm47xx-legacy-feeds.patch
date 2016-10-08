@@ -1,0 +1,8 @@
+--- a/openwrt-src/package/system/opkg/files/opkg.conf
++++ b/openwrt-src/package/system/opkg/files/opkg.conf
+@@ -2,3 +2,5 @@ dest root /
+ dest ram /tmp
+ lists_dir ext /var/opkg-lists
+ option overlay_root /overlay
++
++src/gz my_base https://hamclub.net/openwrt/build/14.07/brcm47xx/legacy/packages/base

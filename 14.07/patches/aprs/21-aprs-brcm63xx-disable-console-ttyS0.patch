@@ -1,0 +1,11 @@
+--- a/openwrt-src/target/linux/brcm63xx/config-3.10
++++ b/openwrt-src/target/linux/brcm63xx/config-3.10
+@@ -33,7 +33,7 @@ CONFIG_BOARD_LIVEBOX=y
+ CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+ CONFIG_CEVT_R4K=y
+ CONFIG_CLONE_BACKWARDS=y
+-CONFIG_CMDLINE="root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200"
++CONFIG_CMDLINE="root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=/dev/null"
+ CONFIG_CMDLINE_BOOL=y
+ # CONFIG_CMDLINE_OVERRIDE is not set
+ CONFIG_CPU_BIG_ENDIAN=y
