@@ -1,3 +1,16 @@
+cc0:
+	@echo "============================================================"
+	@echo "= Building OpenWrt-15.05.1 APRS image for X86 devices      ="
+	@echo "============================================================"
+	make -C 15.05.1 extract_x86
+	make -C 15.05.1 x86 NETWORK=1 NAS=1 IOT=1
+	make -C 15.05.1 deploy_packages
+#	make -C 15.05.1 deploy TYPE=full
+#	make -C 15.05.1 x86 NETWORK=1
+#	make -C 15.05.1 deploy TYPE=net
+#	make -C 15.05.1 x86 IOT=1
+#	make -C 15.05.1 deploy TYPE=iot
+#       make -C 15.05.1 distclean
 cc1:
 	@echo "============================================================"
 	@echo "= Building OpenWrt-15.05.1 APRS image for BRCM47XX devices ="

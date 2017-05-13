@@ -1,5 +1,7 @@
 BUILDER := builder
 SDK := sdk
+X86_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-x86-generic.Linux-x86_64.tar.bz2
+X86_SDK_TGZ := OpenWrt-SDK-15.05.1-x86-generic_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 MT7620_BUILDER_TGZ := OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64.tar.bz2
 MT7620_SDK_TGZ := OpenWrt-SDK-ramips-mt7620_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 BRCM47XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm47xx-legacy.Linux-x86_64.tar.bz2
@@ -14,6 +16,7 @@ OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	luci luci-base luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
 	luci-app-commands luci-i18n-commands-zh-cn \
+	net-tools-slattach kmod-slip \
 	uclibcxx rpcd uhttpd uhttpd-mod-ubus zlib openssl-util
 OPKG_PACKAGES_EXTRA := kmod-lib-textsearch
 PREPARED_TARGETS = .check_ib .patched
@@ -29,6 +32,12 @@ ifeq ($(NETWORK),1)
         OPKG_APRS_PACKAGES += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
                 kmod-proto-bridge kmod-yavlan
         PREPARED_TARGETS += .network
+endif
+
+ifeq ($(IOT),1)
+        OPKG_APRS_PACKAGES += c-ares luci-app-mosquitto \
+               lua-mosquitto 
+        PREPARED_TARGETS += .iot
 endif
 
 ifeq ($(NAS),1)
@@ -73,6 +82,8 @@ rt305x:$(PREPARED_TARGETS)
 mt7620: $(PREPARED_TARGETS)
 	$(call BuildImage,ramips,mt7620,Default,kmod-mt7620 kmod-mt76x2e)
 
+x86: $(PREPARED_TARGETS)
+	$(call BuildImage,x86,generic,Default,)
 
 
 .patched:
@@ -82,8 +93,15 @@ mt7620: $(PREPARED_TARGETS)
 .aprs:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
 	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
-	make package/aprx/compile V=s -C "$(SDK)"
+#	make package/aprx/compile V=s -C "$(SDK)"
 	make package/tinyaprs/compile V=s -C "$(SDK)"
+	make package/net-tools/compile V=s -C "$(SDK)"
+
+.iot:
+	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
+	@cd $(SDK)/package; [ -d iot-feeds ] && { cd iot-feeds; git pull; } || git clone https://github.com/remakeelectric/owrt_pub_feeds iot-feeds
+	make package/lua-mosquitto/compile V=s -C "$(SDK)"
+	make package/luci-app-mosquitto/compile V=s -C "$(SDK)"
 
 .network:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
@@ -115,19 +133,22 @@ mt7620: $(PREPARED_TARGETS)
 # Try extracting ImageBuilder & SDK to current directory
 define ExtractImageBuilder
 	@[ -d "$(subst .tar.bz2,,$(1))" ] || echo extracting $(1) && tar jxf /opt/openwrt/dl/$(1)
-    @[ -d "$(subst .tar.bz2,,$(2))" ] || echo extracting $(2) && tar jxf /opt/openwrt/dl/$(2)
-    rm -f builder sdk
-    ln -s $(subst .tar.bz2,,$(1)) builder
-    ln -s $(subst .tar.bz2,,$(2)) sdk
+	@[ -d "$(subst .tar.bz2,,$(2))" ] || echo extracting $(2) && tar jxf /opt/openwrt/dl/$(2)
+	rm -f builder sdk
+	ln -s $(subst .tar.bz2,,$(1)) builder
+	ln -s $(subst .tar.bz2,,$(2)) sdk
 endef
 
 define ExtractCustomizedImageBuilder
 	@[ -d "$(subst .tar.bz2,,$(1))" ] || echo extracting customize/$(1) && tar jxf /opt/openwrt/dl/customize/$(1)
-    @[ -d "$(subst .tar.bz2,,$(2))" ] || echo extracting customize/$(2) && tar jxf /opt/openwrt/dl/customize/$(2)
-    rm -f builder sdk
-    ln -s $(subst .tar.bz2,,$(1)) builder
-    ln -s $(subst .tar.bz2,,$(2)) sdk
+	@[ -d "$(subst .tar.bz2,,$(2))" ] || echo extracting customize/$(2) && tar jxf /opt/openwrt/dl/customize/$(2)
+	rm -f builder sdk
+	ln -s $(subst .tar.bz2,,$(1)) builder
+	ln -s $(subst .tar.bz2,,$(2)) sdk
 endef
+
+extract_x86:
+	$(call ExtractImageBuilder,$(X86_BUILDER_TGZ),$(X86_SDK_TGZ))
 
 extract_mt7620:
 	$(call ExtractCustomizedImageBuilder,$(MT7620_BUILDER_TGZ),$(MT7620_SDK_TGZ))
@@ -157,6 +178,7 @@ clean: .check_ib
 	@[ -n "$(SDK)" -a -d "$(SDK)"/bin/ramips ] && rm -rf "$(SDK)"/bin/ramips/* || :
 	@[ -n "$(SDK)" -a -d "$(SDK)"/bin/brcm47xx ] && rm -rf "$(SDK)"/bin/brcm47xx/* || :
 	@[ -n "$(SDK)" -a -d "$(SDK)"/bin/brcm63xx ] && rm -rf "$(SDK)"/bin/brcm63xx/* || :
+	@[ -n "$(SDK)" -a -d "$(SDK)"/bin/x86 ] && rm -rf "$(SDK)"/bin/x86/* || :
 
 distclean:
 	rm -fr OpenWrt-ImageBuilder-*
@@ -169,6 +191,7 @@ deploy_packages:
 	@[ ! -d sdk/bin/ramips/packages ] || scp -r sdk/bin/ramips/packages/* $(DEPLOY_ROOT)/ramips/mt7620/packages/
 	@[ ! -d sdk/bin/brcm63xx/packages ] || scp -r sdk/bin/brcm63xx/packages/* $(DEPLOY_ROOT)/brcm63xx/generic/packages/
 	@[ ! -d sdk/bin/brcm47xx/packages ] || scp -r sdk/bin/brcm47xx/packages/* $(DEPLOY_ROOT)/brcm47xx/legacy/packages/
+	@[ ! -d sdk/bin/x86/packages ] || scp -r sdk/bin/x86/packages/* $(DEPLOY_ROOT)/x86/generic/packages/
 
 deploy:
 ifeq ($(TYPE),)
