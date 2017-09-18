@@ -9,40 +9,53 @@ BRCM47XX_SDK_TGZ := OpenWrt-SDK-15.05.1-brcm47xx-legacy_gcc-4.8-linaro_uClibc-0.
 BRCM63XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm63xx-generic.Linux-x86_64.tar.bz2
 BRCM63XX_SDK_TGZ := OpenWrt-SDK-15.05.1-brcm63xx-generic_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 
+# Base Packages
 OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 \
-	kmod-usb-serial \
 	librt libubus-lua libuci-lua lua \
 	luci luci-base luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
 	luci-app-commands luci-i18n-commands-zh-cn \
-	net-tools-slattach kmod-slip \
-	uclibcxx rpcd uhttpd uhttpd-mod-ubus zlib openssl-util
-OPKG_PACKAGES_EXTRA := kmod-lib-textsearch
+	rpcd uhttpd uhttpd-mod-ubus zlib openssl-util
+OPKG_PACKAGES_EXTRA := kmod-lib-textsearch uclibcxx libpthread libstdcpp kmod-usb-serial
 PREPARED_TARGETS = .check_ib .patched
 
-# for aprs packages
-OPKG_APRS_PACKAGES := kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi \
-	screen terminfo
-OPKG_APRS_PACKAGES += libpthread tinyaprs
-PREPARED_TARGETS += .check_sdk .aprs 
+APRS := 1
+MMDVM := 1
 
-# for network packages as NAS or GW
+# APRS packages
+ifeq ($(APRS),1)
+	OPKG_PACKAGES_EXTRA += tinyaprs screen terminfo usbutils
+	OPKG_PACKAGES_EXTRA += kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi
+	OPKG_PACKAGES_EXTRA += mmdvm-host kmod-usb-acm
+	PREPARED_TARGETS += .check_sdk .aprs 
+endif
+
+# MMDVM packages
+ifeq ($(MMDVM),1)
+	OPKG_PACKAGES_EXTRA += mmdvm-host kmod-usb-acm shadow-useradd
+	PREPARED_TARGETS += .mmdvm
+endif
+
+# NETWORK packages
 ifeq ($(NETWORK),1)
-        OPKG_APRS_PACKAGES += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
-                kmod-proto-bridge kmod-yavlan
+        OPKG_PACKAGES_EXTRA += ipset-lists minivtun \
+		shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
+                kmod-proto-bridge kmod-yavlan \
+		net-tools-slattach kmod-slip
         PREPARED_TARGETS += .network
 endif
 
+# IoT packages
 ifeq ($(IOT),1)
-        OPKG_APRS_PACKAGES += c-ares luci-app-mosquitto \
-               lua-mosquitto 
+        OPKG_PACKAGES_EXTRA += c-ares luci-app-mosquitto lua-mosquitto 
         PREPARED_TARGETS += .iot
 endif
 
+# NAS packages
 ifeq ($(NAS),1)
-        OPKG_APRS_PACKAGES += file-storage
-        PREPARED_TARGETS += .network
+        OPKG_PACKAGES_EXTRA += file-storage
+        PREPARED_TARGETS += .nas
 endif
 
 define UpdatePackageIndex
@@ -66,7 +79,7 @@ define BuildImage
 	@echo "----------------------------------------------------------------------------------"
 	make -C $(BUILDER) image PROFILE=$(3) \
 		FILES="$(shell cd $(BUILDER); pwd)/target/linux/$1/base-files" \
-		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) $(4)"
+		PACKAGES="$(OPKG_PACKAGES) $(OPKG_PACKAGES_EXTRA) $(4)"
 	@echo "----------------------------------------------------------------------------------"
 endef
 
@@ -93,9 +106,13 @@ x86: $(PREPARED_TARGETS)
 .aprs:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
 	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
-#	make package/aprx/compile V=s -C "$(SDK)"
+	make package/aprx/compile V=s -C "$(SDK)"
 	make package/tinyaprs/compile V=s -C "$(SDK)"
-	make package/net-tools/compile V=s -C "$(SDK)"
+
+.mmdvm:
+	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
+	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
+	make package/mmdvm-host/compile V=s -C "$(SDK)"
 
 .iot:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
@@ -106,6 +123,7 @@ x86: $(PREPARED_TARGETS)
 .network:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
 	@cd $(SDK)/package; [ -d network-feeds ] && { cd network-feeds; git pull; } || git clone https://github.com/rssnsj/network-feeds.git
+	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
 	# update the network feed list
 	#make -C $(SDK)/package/network-feeds/ipset-lists/tools
 	# compile packages
@@ -116,6 +134,9 @@ x86: $(PREPARED_TARGETS)
 	make package/file-storage/compile V=s -C "$(SDK)"
 	make package/dnspod-utils/compile V=s -C "$(SDK)"
 	make package/proto-bridge/compile V=s -C "$(SDK)"
+	make package/net-tools/compile V=s -C "$(SDK)"
+
+.nas:
 
 .check_ib:
 	@if ! [ -n "$(BUILDER)" -a -d "$(BUILDER)" ]; then \
@@ -152,6 +173,7 @@ extract_x86:
 
 extract_mt7620:
 	$(call ExtractCustomizedImageBuilder,$(MT7620_BUILDER_TGZ),$(MT7620_SDK_TGZ))
+#	$(call ExtractImageBuilder,$(MT7620_BUILDER_TGZ),$(MT7620_SDK_TGZ))
 	
 extract_brcm63xx:
 	$(call ExtractImageBuilder,$(BRCM63XX_BUILDER_TGZ),$(BRCM63XX_SDK_TGZ))
