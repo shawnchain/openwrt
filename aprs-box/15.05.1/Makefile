@@ -8,6 +8,8 @@ BRCM47XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm47xx-legacy.Linux-x86_6
 BRCM47XX_SDK_TGZ := OpenWrt-SDK-15.05.1-brcm47xx-legacy_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 BRCM63XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm63xx-generic.Linux-x86_64.tar.bz2
 BRCM63XX_SDK_TGZ := OpenWrt-SDK-15.05.1-brcm63xx-generic_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
+AR71XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-ar71xx-generic.Linux-x86_64.tar.bz2
+AR71XX_SDK_TGZ := OpenWrt-SDK-15.05.1-ar71xx-generic_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 
 # Base Packages
 OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
@@ -33,7 +35,7 @@ endif
 
 # MMDVM packages
 ifeq ($(MMDVM),1)
-	OPKG_PACKAGES_EXTRA += mmdvm-host kmod-usb-acm shadow-useradd
+	OPKG_PACKAGES_EXTRA += mmdvm-host ysf-clients p25-clients kmod-usb-acm shadow-useradd
 	PREPARED_TARGETS += .mmdvm
 endif
 
@@ -95,8 +97,11 @@ rt305x:$(PREPARED_TARGETS)
 mt7620: $(PREPARED_TARGETS)
 	$(call BuildImage,ramips,mt7620,Default,kmod-mt7620 kmod-mt76x2e)
 
+ar71xx: $(PREPARED_TARGETS)
+	$(call BuildImage,ar71xx,ar71xx,Default,)
+
 x86: $(PREPARED_TARGETS)
-	$(call BuildImage,x86,generic,Default,)
+	$(call BuildImage,x86,x86,Default,)
 
 
 .patched:
@@ -113,6 +118,8 @@ x86: $(PREPARED_TARGETS)
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
 	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
 	make package/mmdvm-host/compile V=s -C "$(SDK)"
+	make package/ysf-clients/compile V=s -C "$(SDK)"
+	make package/p25-clients/compile V=s -C "$(SDK)"
 
 .iot:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
@@ -168,6 +175,9 @@ define ExtractCustomizedImageBuilder
 	ln -s $(subst .tar.bz2,,$(2)) sdk
 endef
 
+extract_ar71xx:
+	$(call ExtractImageBuilder,$(AR71XX_BUILDER_TGZ),$(AR71XX_SDK_TGZ))
+
 extract_x86:
 	$(call ExtractImageBuilder,$(X86_BUILDER_TGZ),$(X86_SDK_TGZ))
 
@@ -187,9 +197,11 @@ help:
 	@echo "  make rt305x		build OpenWrt firmware with APRS software installed for Huawei RG255D(RT305x board)"
 	@echo "  make brcm47xx		build OpenWrt firmware with APRS software installed for H618B(BRCM47XX board)"
 	@echo "  make brcm63xx		build OpenWrt firmware with APRS software installed for H618C(BRCM63XX board)"
+	@echo "  make ar71xx		build OpenWrt firmware with APRS software installed for AR71XX board"
 	
 	@echo "Options:"
 	@echo "  NETWORK=1                    build and install Shadowsocks, minivtun, kmod-proto-bridge, kmod-yavlan"
+	@echo "  NAS=1                 	      build and install Samba file share server"
 
 clean: .check_ib
 	make clean -C $(BUILDER)
