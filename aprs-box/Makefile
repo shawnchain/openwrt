@@ -61,26 +61,27 @@ bb1:
 	@echo "=========================================================="
 	make -C 14.07 extract_brcm47xx
 	#make -C 14.07 brcm47xx NETWORK=1 NAS=1
-	make -C 14.07 .aprs .network NAS=1
-	make -C 14.07 deploy_packages
+	#make -C 14.07 .aprs .mmdvm .network .nas NETWORK=1 NAS=1
 	#make -C 14.07 deploy TYPE=full
 	make -C 14.07 brcm47xx NETWORK=1
 	make -C 14.07 deploy TYPE=net
 	make -C 14.07 brcm47xx 
 	make -C 14.07 deploy TYPE=aprs
+	make -C 14.07 deploy_packages
 #	make -C 14.07 distclean
 bb2:
 	@echo "=========================================================="
 	@echo "= Building OpenWrt-14.07 APRS image for BRCM63XX devices ="
 	@echo "=========================================================="
 	make -C 14.07 extract_brcm63xx
-	make -C 14.07 brcm63xx NETWORK=1 NAS=1
-	make -C 14.07 deploy_packages
-	make -C 14.07 deploy TYPE=full
+	#make -C 14.07 brcm63xx NETWORK=1 NAS=1
+	#make -C 14.07 deploy_packages
+	#make -C 14.07 deploy TYPE=full
 	make -C 14.07 brcm63xx NETWORK=1
 	make -C 14.07 deploy TYPE=net
 	make -C 14.07 brcm63xx
 	make -C 14.07 deploy
+	make -C 14.07 deploy_packages
 #	make -C 14.07 distclean
 
 cc: cc1 cc2 cc3

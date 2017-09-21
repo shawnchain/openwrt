@@ -47,7 +47,7 @@ endif
 
 ifeq ($(NAS),1)
 	OPKG_PACKAGES_EXTRA += file-storage
-	PREPARED_TARGETS += .network
+	PREPARED_TARGETS += .nas
 endif
 
 define UpdatePackageIndex
@@ -119,6 +119,8 @@ ar71xx: $(PREPARED_TARGETS)
 	make package/file-storage/compile V=s -C "$(SDK)"
 	make package/dnspod-utils/compile V=s -C "$(SDK)"
 	make package/proto-bridge/compile V=s -C "$(SDK)"
+
+.nas:
 
 .check_ib:
 	@if ! [ -n "$(BUILDER)" -a -d "$(BUILDER)" ]; then \
