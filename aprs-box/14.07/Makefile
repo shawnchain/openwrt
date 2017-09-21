@@ -4,32 +4,47 @@ BRCM47XX_BUILDER_TGZ := OpenWrt-ImageBuilder-brcm47xx_legacy-for-linux-x86_64.ta
 BRCM47XX_SDK_TGZ := OpenWrt-SDK-brcm47xx-for-linux-x86_64-gcc-4.8-linaro_uClibc-0.9.33.2.tar.bz2
 BRCM63XX_BUILDER_TGZ := OpenWrt-ImageBuilder-brcm63xx_generic-for-linux-x86_64.tar.bz2
 BRCM63XX_SDK_TGZ := OpenWrt-SDK-brcm63xx-for-linux-x86_64-gcc-4.8-linaro_uClibc-0.9.33.2.tar.bz2
+AR71XX_BUILDER_TGZ := OpenWrt-ImageBuilder-ar71xx_generic-for-linux-x86_64.tar.bz2
+AR71XX_SDK_TGZ := OpenWrt-SDK-ar71xx-for-linux-x86_64-gcc-4.8-linaro_uClibc-0.9.33.2.tar.bz2
 
+# Base Packages
 OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 \
-	kmod-usb-serial \
 	librt libubus-lua libuci-lua lua \
-	luci luci-base luci-app-firewall luci-base luci-i18n-english luci-i18n-chinese \
+	luci luci-base luci-app-firewall luci-i18n-english luci-i18n-chinese \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
-	uclibcxx rpcd uhttpd uhttpd-mod-ubus zlib wget ca-certificates luci-app-commands 
-OPKG_PACKAGES_EXTRA := kmod-lib-textsearch
-PREPARED_TARGETS = .check_ib .patched
+	rpcd uhttpd uhttpd-mod-ubus zlib luci-app-commands 
+OPKG_PACKAGES_EXTRA := kmod-lib-textsearch uclibcxx libpthread libstdcpp kmod-usb-serial
+# for usb-serial packages
+OPKG_PACKAGES_EXTRA += kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi kmod-usb-serial-ch341
+OPKG_PACKAGES_EXTRA += screen terminfo usbutils
+# wget for https:// under 14.07
+OPKG_PACKAGES_EXTRA += wget ca-certificates
 
-# for aprs packages
-OPKG_APRS_PACKAGES := kmod-usb-serial-pl2303 kmod-usb-serial-cp210x \
-	screen terminfo
-OPKG_APRS_PACKAGES += libpthread tinyaprs
-PREPARED_TARGETS += .check_sdk .aprs 
+PREPARED_TARGETS = .check_ib .patched .check_sdk
+
+APRS := 1
+MMDVM := 1
+
+ifeq ($(APRS),1)
+	OPKG_PACKAGES_EXTRA += tinyaprs aprx
+	PREPARED_TARGETS += .aprs
+endif
+
+ifeq ($(MMDVM),1)
+	OPKG_PACKAGES_EXTRA += mmdvm-host ysf-clients p25-clients kmod-usb-acm shadow-useradd
+	PREPARED_TARGETS += .mmdvm
+endif
 
 # for network packages as NAS or GW
 ifeq ($(NETWORK),1)
-	OPKG_APRS_PACKAGES += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
+	OPKG_PACKAGES_EXTRA += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
 		kmod-proto-bridge kmod-yavlan
 	PREPARED_TARGETS += .network
 endif
 
 ifeq ($(NAS),1)
-	OPKG_APRS_PACKAGES += file-storage
+	OPKG_PACKAGES_EXTRA += file-storage
 	PREPARED_TARGETS += .network
 endif
 
@@ -53,7 +68,7 @@ define BuildImage
 	@echo "----------------------------------------------------------------------------------"
 	make -C $(BUILDER) image PROFILE=$(2) \
 		FILES="$(shell cd $(BUILDER); pwd)/target/linux/$1/base-files" \
-		PACKAGES="$(OPKG_PACKAGES) $(OPKG_APRS_PACKAGES) $(OPKG_PACKAGES_EXTRA) $(3)"
+		PACKAGES="$(OPKG_PACKAGES) $(OPKG_PACKAGES_EXTRA) $(3)"
 	@echo "----------------------------------------------------------------------------------"
 endef
 
@@ -69,6 +84,9 @@ rt305x:$(PREPARED_TARGETS)
 mt7620: $(PREPARED_TARGETS)
 	$(call BuildImage,mt7620,Default,kmod-mt7620 kmod-mt76x2e)
 
+ar71xx: $(PREPARED_TARGETS)
+	$(call BuildImage,ar71xx,Default,)
+
 .patched:
 	#@cd $(BUILDER); cat ../patches/*.patch | patch -p2
 	touch .patched
@@ -78,6 +96,13 @@ mt7620: $(PREPARED_TARGETS)
 	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
 	make package/aprx/compile V=s -C "$(SDK)"
 	make package/tinyaprs/compile V=s -C "$(SDK)"
+
+.mmdvm:
+	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
+	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
+	make package/mmdvm-host/compile V=s -C "$(SDK)"
+	make package/ysf-clients/compile V=s -C "$(SDK)"
+	make package/p25-clients/compile V=s -C "$(SDK)"
 
 .network:
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
@@ -114,6 +139,9 @@ define ExtractImageBuilder
         ln -s $(subst .tar.bz2,,$(1)) builder
         ln -s $(subst .tar.bz2,,$(2)) sdk
 endef
+
+extract_ar71xx:
+	$(call ExtractImageBuilder,$(AR71XX_BUILDER_TGZ),$(AR71XX_SDK_TGZ))
 
 extract_brcm63xx:
 	$(call ExtractImageBuilder,$(BRCM63XX_BUILDER_TGZ),$(BRCM63XX_SDK_TGZ))
