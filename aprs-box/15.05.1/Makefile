@@ -22,8 +22,7 @@ OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 OPKG_PACKAGES_EXTRA := kmod-lib-textsearch uclibcxx libpthread libstdcpp kmod-usb-serial
 # for usb-serial packages
 OPKG_PACKAGES_EXTRA += kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi kmod-usb-serial-ch341
-OPKG_PACKAGES_EXTRA += screen terminfo usbutils
-
+OPKG_PACKAGES_EXTRA += screen terminfo
 PREPARED_TARGETS = .check_ib .patched .check_sdk
 
 APRS := 1
@@ -44,9 +43,10 @@ endif
 # NETWORK packages
 ifeq ($(NETWORK),1)
         OPKG_PACKAGES_EXTRA += ipset-lists minivtun \
-		shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
-                kmod-proto-bridge kmod-yavlan \
-		net-tools-slattach kmod-slip
+			shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
+			kmod-proto-bridge kmod-yavlan \
+			net-tools-slattach kmod-slip \
+			usbutils
         PREPARED_TARGETS += .network
 endif
 

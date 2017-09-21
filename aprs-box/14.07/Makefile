@@ -17,7 +17,7 @@ OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 OPKG_PACKAGES_EXTRA := kmod-lib-textsearch uclibcxx libpthread libstdcpp kmod-usb-serial
 # for usb-serial packages
 OPKG_PACKAGES_EXTRA += kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi kmod-usb-serial-ch341
-OPKG_PACKAGES_EXTRA += screen terminfo usbutils
+OPKG_PACKAGES_EXTRA += screen terminfo
 # wget for https:// under 14.07
 OPKG_PACKAGES_EXTRA += wget ca-certificates
 
@@ -39,7 +39,9 @@ endif
 # for network packages as NAS or GW
 ifeq ($(NETWORK),1)
 	OPKG_PACKAGES_EXTRA += ipset-lists minivtun shadowsocks-libev shadowsocks-tools -dnsmasq dnsmasq-full \
-		kmod-proto-bridge kmod-yavlan
+		kmod-proto-bridge kmod-yavlan \
+		net-tools-slattach kmod-slip \
+		usbutils
 	PREPARED_TARGETS += .network
 endif
 
