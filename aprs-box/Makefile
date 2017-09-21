@@ -16,13 +16,14 @@ cc1:
 	@echo "= Building OpenWrt-15.05.1 APRS image for BRCM47XX devices ="
 	@echo "============================================================"
 	make -C 15.05.1 extract_brcm47xx
-	make -C 15.05.1 brcm47xx NETWORK=1 NAS=1
-	make -C 15.05.1 deploy_packages
-	make -C 15.05.1 deploy TYPE=full
+#	make -C 15.05.1 brcm47xx NETWORK=1 NAS=1
+#	make -C 15.05.1 deploy_packages
+#	make -C 15.05.1 deploy TYPE=full
 	make -C 15.05.1 brcm47xx NETWORK=1
 	make -C 15.05.1 deploy TYPE=net
 	make -C 15.05.1 brcm47xx 
 	make -C 15.05.1 deploy TYPE=aprs
+	make -C 15.05.1 deploy_packages
 #	make -C 15.05.1 distclean
 
 cc2:
@@ -30,13 +31,14 @@ cc2:
 	@echo "= Building OpenWrt-15.05.1 APRS image for BRCM63XX devices ="
 	@echo "============================================================"
 	make -C 15.05.1 extract_brcm63xx
-	make -C 15.05.1 brcm63xx NETWORK=1 NAS=1
-	make -C 15.05.1 deploy_packages
-	make -C 15.05.1 deploy TYPE=full
+#	make -C 15.05.1 brcm63xx NETWORK=1 NAS=1
+#	make -C 15.05.1 deploy_packages
+#	make -C 15.05.1 deploy TYPE=full
 	make -C 15.05.1 brcm63xx NETWORK=1
 	make -C 15.05.1 deploy TYPE=net
 	make -C 15.05.1 brcm63xx
 	make -C 15.05.1 deploy
+	make -C 15.05.1 deploy_packages
 #	make -C 15.05.1 distclean	
 
 cc3:
