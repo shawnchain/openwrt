@@ -15,22 +15,24 @@ AR71XX_SDK_TGZ := OpenWrt-SDK-15.05.1-ar71xx-generic_gcc-4.8-linaro_uClibc-0.9.3
 OPKG_PACKAGES := kmod-ledtrig-gpio kmod-lib-zlib \
 	kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 \
 	librt libubus-lua libuci-lua lua \
-	luci luci-base luci-app-firewall luci-base luci-i18n-base-en luci-i18n-base-zh-cn \
+	luci luci-base luci-app-firewall luci-i18n-base-en luci-i18n-base-zh-cn \
 	luci-lib-nixio luci-mod-admin-full luci-proto-ipv6 luci-proto-ppp luci-theme-bootstrap \
 	luci-app-commands luci-i18n-commands-zh-cn \
 	rpcd uhttpd uhttpd-mod-ubus zlib openssl-util
 OPKG_PACKAGES_EXTRA := kmod-lib-textsearch uclibcxx libpthread libstdcpp kmod-usb-serial
-PREPARED_TARGETS = .check_ib .patched
+# for usb-serial packages
+OPKG_PACKAGES_EXTRA += kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi kmod-usb-serial-ch341
+OPKG_PACKAGES_EXTRA += screen terminfo usbutils
+
+PREPARED_TARGETS = .check_ib .patched .check_sdk
 
 APRS := 1
 MMDVM := 1
 
 # APRS packages
 ifeq ($(APRS),1)
-	OPKG_PACKAGES_EXTRA += tinyaprs screen terminfo usbutils
-	OPKG_PACKAGES_EXTRA += kmod-usb-serial-pl2303 kmod-usb-serial-cp210x kmod-usb-serial-ftdi
-	OPKG_PACKAGES_EXTRA += mmdvm-host kmod-usb-acm
-	PREPARED_TARGETS += .check_sdk .aprs 
+	OPKG_PACKAGES_EXTRA += tinyaprs aprx
+	PREPARED_TARGETS += .aprs 
 endif
 
 # MMDVM packages
