@@ -119,6 +119,7 @@ ar71xx: $(PREPARED_TARGETS)
 	make package/file-storage/compile V=s -C "$(SDK)"
 	make package/dnspod-utils/compile V=s -C "$(SDK)"
 	make package/proto-bridge/compile V=s -C "$(SDK)"
+	make package/net-tools/compile V=s -C "$(SDK)"
 
 .nas:
 
