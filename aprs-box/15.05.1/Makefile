@@ -36,7 +36,7 @@ endif
 
 # MMDVM packages
 ifeq ($(MMDVM),1)
-	OPKG_PACKAGES_EXTRA += mmdvm-host ysf-clients p25-clients kmod-usb-acm shadow-useradd
+	OPKG_PACKAGES_EXTRA += mmdvm-host ysf-clients p25-clients kmod-usb-ohci kmod-usb-acm shadow-useradd
 	PREPARED_TARGETS += .mmdvm
 endif
 
