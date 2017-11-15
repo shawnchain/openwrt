@@ -4,6 +4,8 @@ X86_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-x86-generic.Linux-x86_64.tar.bz2
 X86_SDK_TGZ := OpenWrt-SDK-15.05.1-x86-generic_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 MT7620_BUILDER_TGZ := OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64.tar.bz2
 MT7620_SDK_TGZ := OpenWrt-SDK-ramips-mt7620_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
+MT7688_BUILDER_TGZ := OpenWrt-ImageBuilder-ramips-mt7688.Linux-x86_64.tar.bz2
+MT7688_SDK_TGZ := OpenWrt-SDK-ramips-mt7688_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 BRCM47XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm47xx-legacy.Linux-x86_64.tar.bz2
 BRCM47XX_SDK_TGZ := OpenWrt-SDK-15.05.1-brcm47xx-legacy_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 BRCM63XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm63xx-generic.Linux-x86_64.tar.bz2
@@ -99,6 +101,9 @@ rt305x:$(PREPARED_TARGETS)
 mt7620: $(PREPARED_TARGETS)
 	$(call BuildImage,ramips,mt7620,Default,kmod-mt7620 kmod-mt76x2e)
 
+mt7688: $(PREPARED_TARGETS)
+	$(call BuildImage,ramips,mt7688,Default,kmod-mt76)
+
 ar71xx: $(PREPARED_TARGETS)
 	$(call BuildImage,ar71xx,ar71xx,Default,)
 
@@ -186,6 +191,9 @@ extract_x86:
 extract_mt7620:
 	$(call ExtractCustomizedImageBuilder,$(MT7620_BUILDER_TGZ),$(MT7620_SDK_TGZ))
 #	$(call ExtractImageBuilder,$(MT7620_BUILDER_TGZ),$(MT7620_SDK_TGZ))
+
+extract_mt7688:
+	$(call ExtractImageBuilder,$(MT7688_BUILDER_TGZ),$(MT7688_SDK_TGZ))
 	
 extract_brcm63xx:
 	$(call ExtractImageBuilder,$(BRCM63XX_BUILDER_TGZ),$(BRCM63XX_SDK_TGZ))
@@ -196,6 +204,7 @@ extract_brcm47xx:
 help:
 	@echo "Usage:"
 	@echo "  make mt7620 		build OpenWrt firmware with APRS software installed for Lenovo Y1/Y1S (MT7620 board)"
+	@echo "  make mt7688 		build OpenWrt firmware with APRS software installed for Widora (MT7688 board)"
 	@echo "  make rt305x		build OpenWrt firmware with APRS software installed for Huawei RG255D(RT305x board)"
 	@echo "  make brcm47xx		build OpenWrt firmware with APRS software installed for H618B(BRCM47XX board)"
 	@echo "  make brcm63xx		build OpenWrt firmware with APRS software installed for H618C(BRCM63XX board)"
