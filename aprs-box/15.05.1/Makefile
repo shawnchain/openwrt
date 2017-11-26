@@ -4,8 +4,8 @@ X86_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-x86-generic.Linux-x86_64.tar.bz2
 X86_SDK_TGZ := OpenWrt-SDK-15.05.1-x86-generic_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 MT7620_BUILDER_TGZ := OpenWrt-ImageBuilder-ramips-mt7620.Linux-x86_64.tar.bz2
 MT7620_SDK_TGZ := OpenWrt-SDK-ramips-mt7620_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
-MT7688_BUILDER_TGZ := OpenWrt-ImageBuilder-ramips-mt7688.Linux-x86_64.tar.bz2
-MT7688_SDK_TGZ := OpenWrt-SDK-ramips-mt7688_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
+MT7688_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-ramips-mt7688.Linux-x86_64.tar.bz2
+MT7688_SDK_TGZ := OpenWrt-SDK-15.05.1-ramips-mt7688_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 BRCM47XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm47xx-legacy.Linux-x86_64.tar.bz2
 BRCM47XX_SDK_TGZ := OpenWrt-SDK-15.05.1-brcm47xx-legacy_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64.tar.bz2
 BRCM63XX_BUILDER_TGZ := OpenWrt-ImageBuilder-15.05.1-brcm63xx-generic.Linux-x86_64.tar.bz2
@@ -38,7 +38,7 @@ endif
 
 # MMDVM packages
 ifeq ($(MMDVM),1)
-	OPKG_PACKAGES_EXTRA += mmdvm-host ysf-clients p25-clients kmod-usb-ohci kmod-usb-acm shadow-useradd
+	OPKG_PACKAGES_EXTRA += mmdvm-host mmdvm-cal ysf-clients p25-clients kmod-usb-ohci kmod-usb-acm shadow-useradd
 	PREPARED_TARGETS += .mmdvm
 endif
 
@@ -125,6 +125,7 @@ x86: $(PREPARED_TARGETS)
 	@cd $(SDK); [ ! -L dl -a -d /opt/openwrt/dl ] && { rmdir dl && ln -s /opt/openwrt/dl; } || :
 	@cd $(SDK)/package; [ -d aprs-feeds ] && { cd aprs-feeds; git pull; } || git clone https://github.com/shawnchain/openwrt-feeds.git aprs-feeds
 	make package/mmdvm-host/compile V=s -C "$(SDK)"
+	make package/mmdvm-cal/compile V=s -C "$(SDK)"
 	make package/ysf-clients/compile V=s -C "$(SDK)"
 	make package/p25-clients/compile V=s -C "$(SDK)"
 
